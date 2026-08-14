@@ -1,0 +1,60 @@
+        /* 主容器 */
+        .app-frame {
+            width: 96vw; height: 92vh;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid #fff;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 左侧导航 */
+        .nav-sidebar {
+            width: 90px; background: var(--sidebar-bg);
+            border-right: 1px solid rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 0;
+            z-index: 20;
+        }
+
+        .nav-btn {
+            width: 56px; height: 56px; border-radius: 18px;
+            border: none; background: transparent;
+            color: #b2bec3; font-size: 22px; cursor: pointer;
+            margin-bottom: 25px; transition: 0.3s;
+        }
+        .nav-btn:hover { background: var(--input-bg); color: var(--text-light); }
+        .nav-btn.active {
+            background: var(--primary); color: #fff;
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* 内容容器 */
+        .content-container { flex: 1; position: relative; }
+
+        .view-layer {
+            position: absolute; width: 100%; height: 100%;
+            display: none; opacity: 0; transition: opacity 0.4s ease;
+        }
+        .view-layer.active { display: flex; opacity: 1; }
+
+        /* === 布局：左视觉(Visual) + 右面板(Panel) === */
+        
+        .visual-side {
+            flex: 1; position: relative;
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
+            padding: 20px;
+        }
+
+        /* 3D 模型容器 */
+        .model-container {
+            width: 100%; height: 60%; 
+            position: relative; z-index: 10;
+        }
+        model-viewer::part(default-progress-bar) { display: none; }
+

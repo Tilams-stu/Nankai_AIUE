@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Message Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层、白噪音运行时、模型心情切换运行时、导航运行时、冥想运行时、状态页图表运行时和表单运行时外置之后，抽取第七个低耦合交互切片：消息渲染。将聊天和 GAD-7 视图中的消息气泡 DOM 创建、bubble HTML 更新和容器自动滚动迁移到 `src/app/messageRuntime.js`，`index.html` 只保留 `appendMsg` 和 `appendGadMsg` 兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/messageRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_message_runtime_check.md`。
+- **技术亮点与潜在风险**：消息运行时通过 `window.MentalMessageRuntime` 暴露能力，`sendMessage` 和 `sendGadMessage` 仍负责网络请求、SSE 读取和 `marked.parse` 的调用时机，但不再直接持有气泡 DOM 创建和滚动逻辑。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认消息容器插入、bubble 返回、HTML 更新和滚动行为可工作。后续 Goal 4 仍需继续拆语音输入、聊天发送/GAD-7 发送、SSE 解析、移动端拖拽和模型材质上色逻辑。

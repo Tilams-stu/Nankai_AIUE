@@ -1,0 +1,5 @@
+sk-08c349b57bf84328ba193f422651ffbe
+
+$env:CODEX_HOME = 'C:\Users\Administrator\.codex-deepseek'
+cd '你的项目路径'
+codex

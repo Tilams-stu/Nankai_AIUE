@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Sound Grid Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在已完成 CSS 外置和分层之后，选择低耦合的白噪音空间作为第一个 JavaScript 拆分切片。将声音列表、卡片渲染、播放切换和音量调节迁移到 `src/app/soundGridRuntime.js`，`index.html` 只保留 `initSoundGrid`、`toggleAudio`、`adjustVolume` 三个兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/soundGridRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_sound_grid_runtime_check.md`。
+- **技术亮点与潜在风险**：本次没有再尝试整段内联脚本外置，而是保守迁移单一功能面。外部运行时通过 `window.MentalSoundGrid` 暴露能力，现有页面仍可通过原函数名调用；新生成的音量滑块使用事件绑定，减少新的内联事件字符串。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；本地 HTTP 和最小 DOM 运行时检查确认脚本可加载并生成 6 张声音卡片。风险是多数 legacy JS 仍集中在 `index.html`，且音频文件路径 `focus-sounds-master/static/...` 在当前项目文件列表中未找到，后续若要完整验证播放体验，需要补齐或迁移音频资源。

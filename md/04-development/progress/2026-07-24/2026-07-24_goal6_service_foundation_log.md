@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 6 Service Foundation Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划，从 Goal 5 的领域模型落地推进到 Goal 6 的服务层基础建设。新增 `sseParser.ts`、`sanitizeText.ts`、`formatTime.ts`、`chatService.ts` 和 `sessionService.ts`，把共享 SSE 解析、文本整理、时间格式化、聊天传输和会话状态操作写成可编译的 TypeScript 模块。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/src/utils/sseParser.ts`、`Mental-LLM_JxFdj/src/utils/sanitizeText.ts`、`Mental-LLM_JxFdj/src/utils/formatTime.ts`、`Mental-LLM_JxFdj/src/services/chatService.ts`、`Mental-LLM_JxFdj/src/services/sessionService.ts`、`Mental-LLM_JxFdj/src/utils/README.md`、`Mental-LLM_JxFdj/src/services/README.md`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`testing/2026-07-24_goal6_service_foundation_check.md`。
+- **技术亮点与潜在风险**：这一步没有直接把页面全面切到 TypeScript 服务层，而是先把最核心的共享逻辑落成可验证模块，并用临时编译后的 Node 运行时做单独验收。`SERVICE_FOUNDATION_PASS` 验证了 SSE 跨 chunk 拼接、done 事件识别、错误事件输出、时间格式化和会话状态更新。`npm run typecheck`、`npm run build`、`npm run smoke` 均通过。后续 Goal 6 仍需让现有 `chatRuntime.js` 逐步让位给 `src/services/chatService.ts`，否则服务层会长期处于“存在但未接管”的状态。

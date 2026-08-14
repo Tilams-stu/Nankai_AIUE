@@ -1,0 +1,5 @@
+### [2026-07-25] Goal 7 Audit Summary Development Log
+
+- **任务概述**：继续推进 `Mental-LLM_JxFdj` 的 Goal 7，在 `local_audit` 模式基础上新增只读 audit 摘要接口。实现了 `/api/workflow/audit-records`、前端 typed summary contract/service，以及 upload runtime 的摘要读取入口，用于后续 staff-facing 调试或审核工具。
+- **代码变更路径**：涉及 `Mental-LLM_JxFdj/server/proxy_server.py`、`Mental-LLM_JxFdj/src/contracts/workflowAuditContract.ts`、`Mental-LLM_JxFdj/src/services/workflowAuditService.ts`、`Mental-LLM_JxFdj/src/services/README.md`、`Mental-LLM_JxFdj/src/app/uploadRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/agent_integration.md`、`testing/2026-07-25_goal7_audit_summary_check.md`、`progress/2026-07-25_goal7_audit_summary_log.md`。
+- **技术亮点与潜在风险**：这一轮把本地 audit adapter 从“可落盘”推进到“可摘要读取”，而且保持只读摘要边界，不把完整 workflow request 直接暴露给前端。`typecheck`、`runtime:build`、`smoke` 和 `LOCAL_AUDIT_GATEWAY_PASS` 已留证。当前仍无 UI 消费该接口，后续若做审核视图，还需要明确访问控制与摘要字段边界。

@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Navigation Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层、白噪音运行时和模型心情切换运行时外置之后，抽取第三个低耦合交互切片：视图导航与移动端浮窗导航。将视图显隐、导航按钮激活状态、暗色模式按钮和菜单文案、移动端浮窗开关、移动端导航按钮查找、点击外部关闭菜单迁移到 `src/app/navigationRuntime.js`，`index.html` 只保留 `switchView`、`toggleDarkMode`、`toggleFloatMenu`、`handleMobileNav` 兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/navigationRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_navigation_runtime_check.md`。
+- **技术亮点与潜在风险**：导航运行时通过 `window.MentalNavigationRuntime` 暴露能力，保留原有内联 `onclick` 调用入口。依赖旧页面局部状态的生命周期动作仍留在包装函数中，包括图表初始化、呼吸动画定时器和 GAD-7 首次开场白；移动端悬浮球触摸拖拽逻辑也暂时保留在 `index.html`，避免扩大本次拆分范围。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认视图切换、暗色模式、浮窗开关、移动端导航和点击外部关闭均可工作。后续 Goal 4 仍需继续拆聊天面板、图表/呼吸模块和更多视图组件，并补桌面/移动端真实浏览器回归。

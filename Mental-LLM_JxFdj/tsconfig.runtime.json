@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "outDir": "./public/runtime",
+    "rootDir": "./src",
+    "declaration": false,
+    "sourceMap": false
+  },
+  "include": [
+    "src/app/appState.ts",
+    "src/contracts/**/*.ts",
+    "src/domain/**/*.ts",
+    "src/services/**/*.ts",
+    "src/utils/**/*.ts"
+  ]
+}

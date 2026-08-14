@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Chat Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在表单、消息渲染和语音输入等视图辅助逻辑外置之后，抽取共享聊天传输逻辑到 `src/app/chatRuntime.js`。`index.html` 中的 `sendMessage` 和 `sendGadMessage` 现在只保留薄包装层，实际请求构造、代理错误解析、输入框清空、SSE 流缓冲和 bubble 更新流程统一由运行时处理。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/chatRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`testing/2026-07-24_goal4_chat_runtime_check.md`。
+- **技术亮点与潜在风险**：这一步顺手修正了当前 SSE 读取按 chunk 直接 `split('\n')` 的风险，新增尾部缓冲 `buffer` 以保留跨 chunk 的半行 `data:` 事件，避免 JSON 被截断。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小运行时验证确认请求体、跨 chunk 合并、silent/hidden 分支和错误气泡更新都能工作。后续 Goal 4 仍需继续拆更高耦合的业务层，比如把视图侧 wrappers 进一步让位给 `src/services/` 和 `src/utils/` 下的类型化实现。

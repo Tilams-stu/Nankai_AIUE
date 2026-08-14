@@ -1,0 +1,42 @@
+d9ibqft4shh989l17fag
+
+
+d9fnh7d4shh9f0iucslg
+d9jifpt4shh9f0iudks0
+
+3HEiIUF2UeOIfDjgtyY6syRV1qk_5RqqqN9SpcUBGch3XZEbX
+
+cd E:\系统目录勿删\Desktop\work\AIUE\Mental-LLM_JxFdj
+$env:NANKAI_API_KEY = "d9jifpt4shh9f0iudks0"
+python proxy_server.py
+
+powershell -ExecutionPolicy Bypass -File .\scripts\start_local.ps1
+
+夜晚 许可:CC0 作者:阿涛君 来源:耳聆网 https://www.ear0.com/sound/37749
+篝火声 许可:CC0 作者:阿涛君 来源:耳聆网 https://www.ear0.com/sound/37750
+风声 许可:CC0 作者:阿涛君 来源:耳聆网 https://www.ear0.com/sound/37753
+安静森林 许可:CC-BY 作者:空虚夕阳 来源:耳聆网 https://www.ear0.com/sound/20383
+
+cd D:\Desktop\Software\AIUE\Mental-LLM_JxFdj
+C:\Python313\python.exe proxy_server.py
+
+cd D:\Desktop\Software\AIUE\Mental-LLM_JxFdj
+npm run dev -- --host 127.0.0.1
+
+ngrok version
+ngrok update
+
+ngrok config add-authtoken 3HEiIUF2UeOIfDjgtyY6syRV1qk_5RqqqN9SpcUBGch3XZEbX
+
+ngrok http 8000
+ngrok http 5174 --host-header=rewrite --basic-auth "Tilams:mentalllm"
+
+
+4. 验证后端代理
+把下面地址中的域名换成 ngrok 显示的域名：
+$pair = "pilot:你的密码"
+$encoded = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($pair))
+
+Invoke-WebRequest `
+  -Uri "https://xxxx.ngrok-free.dev/api/workflow/status" `
+  -Headers @{ Authorization = "Basic $encoded" }

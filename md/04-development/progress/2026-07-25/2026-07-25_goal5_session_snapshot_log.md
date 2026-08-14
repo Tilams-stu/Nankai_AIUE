@@ -1,0 +1,5 @@
+### [2026-07-25] Goal 5 Session Snapshot Development Log
+
+- **任务概述**：继续推进 `Mental-LLM_JxFdj` 的状态边界建设，在不突破当前隐私规则的前提下新增 typed session snapshot 能力。实现了会话状态的导出/恢复 contract 与 service，并接入 `sessionRuntime`，为后续受控后端交接、会话恢复和审计链路预留接口。
+- **代码变更路径**：涉及 `Mental-LLM_JxFdj/src/contracts/sessionSnapshotContract.ts`、`Mental-LLM_JxFdj/src/services/sessionSnapshotService.ts`、`Mental-LLM_JxFdj/src/app/sessionRuntime.js`、`Mental-LLM_JxFdj/src/services/README.md`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/docs/data_boundary.md`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`testing/2026-07-25_goal5_session_snapshot_check.md`、`progress/2026-07-25_goal5_session_snapshot_log.md`。
+- **技术亮点与潜在风险**：这一轮把状态工程化从“运行时可读写”推进到“可版本化导出/恢复”，但仍然严格停留在内存态边界，没有新增浏览器持久化敏感信息的路径。`typecheck`、`runtime:build`、`smoke` 和 `SESSION_SNAPSHOT_SERVICE_PASS` 已留证。当前 snapshot 校验仍是轻量结构校验，未来若接后端或外部导出通道，还需要补充更严格的 schema 校验、权限控制与脱敏规则。

@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>校园心灵驿站</title>
+
+    <!-- PWA 图标（添加到桌面） -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/tubiao.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/tubiao.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="心灵驿站">
+    <meta name="theme-color" content="#7c5cfc">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- 1. 字体与图标 -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 本地化，避免 CDN 不可用 -->
+    <link href="./libs/fontawesome/css/all.min.css" rel="stylesheet">
+    
+    <!-- 2. 功能库（优先使用本地 libs，避免 CDN 报错） -->
+    <script src="./libs/chart.js"></script>
+    <script src="./libs/marked.min.js"></script>
+    <!-- Google 3D 模型查看器 -->
+    <script type="module" src="./libs/model-viewer.min.js"></script>
+    <link rel="stylesheet" href="./src/styles/legacy-page.css">
+</head>
+<body>
+
+    <div class="app-frame">
+        <!-- 侧边导航 -->
+        <nav class="nav-sidebar">
+            <button class="nav-btn active" onclick="switchView('chat', this)" title="聊天"><i class="fa-regular fa-comments"></i></button>
+            <button class="nav-btn" onclick="switchView('gad7', this)" title="补充测评"><i class="fa-solid fa-brain"></i></button>
+            <button class="nav-btn" onclick="switchView('profile', this)" title="状态"><i class="fa-solid fa-chart-simple"></i></button>
+            <button class="nav-btn" onclick="switchView('meditation', this)" title="放松"><i class="fa-solid fa-leaf"></i></button>
+            <div style="flex:1"></div>
+            <button class="nav-btn" onclick="toggleDarkMode()" title="夜间模式" id="pcModeBtn"><i class="fa-solid fa-moon"></i></button>
+        </nav>
+
+        <main class="content-container">
+            
+            <!-- VIEW 1: 聊天 + 3D 变身 -->
+            <div id="view-chat" class="view-layer active">
+                
+                <!-- 左侧：3D 伙伴与状态切换 -->
+                <div class="visual-side">
+                    <div class="model-container">
+                        <!-- 核心模型组件 -->
+                        <model-viewer 
+                            id="lion-viewer"
+                            src="/models/original.glb" 
+                            alt="心理伙伴"
+                            auto-rotate 
+                            camera-controls 
+                            autoplay
+                            shadow-intensity="1"
+                            exposure="1.0"
+                            style="width: 100%; height: 100%; background-color: transparent; --poster-color: transparent;">
+                        </model-viewer>
+                    </div>
+
+                    <!-- 状态切换按钮（包含新增动作） -->
+                    <div class="status-switcher">
+                        <button class="status-btn active" onclick="changeModel('happy')">开心</button>
+                        <button class="status-btn" onclick="changeModel('thumbsup')">点赞</button>
+                        <button class="status-btn" onclick="changeModel('sport')">运动</button>
+                        <button class="status-btn" onclick="changeModel('study')">学习</button>
+                        <button class="status-btn" onclick="changeModel('sleep')">休息</button>
+                        <button class="status-btn" onclick="changeModel('shy')">害羞</button>
+                        <button class="status-btn" onclick="changeModel('no')">拒绝</button>
+                    </div>
+
+                    <div class="welcome-text">
+                        <h1>Hi, 同学</h1>
+                        <p>这里是你的专属树洞，随时倾听你的心声。</p>
+                    </div>
+                </div>
+                
+                <!-- 右侧：聊天交互 -->
+                <div class="panel-side">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-face-smile-beam" style="color:var(--primary)"></i> 暖心伙伴</div>
+                        <div class="panel-actions">
+                            <button class="panel-action-btn" onclick="finalizeSession()" title="结束会话"><i class="fa-solid fa-file-circle-check"></i></button>
+                            <button class="panel-action-btn" onclick="restartSession()" title="重新开始"><i class="fa-solid fa-rotate-right"></i></button>
+                            <button class="panel-action-btn" onclick="exitSession()" title="退出会话"><i class="fa-solid fa-right-from-bracket"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-area" id="chatBox">
+                        <div class="msg-item agent">
+                            <div class="bubble">你好呀！我是你的百变小狮子。<br>我会根据你的心情变换状态，也会认真听你说话。</div>
+                        </div>
+                    </div>
+
+                    <div class="input-zone">
+                        <div class="input-box-wrapper">
+                            <!-- 语音按钮 -->
+                            <button class="circle-btn" id="micBtn" onclick="toggleVoice()" title="语音输入">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            
+                            <textarea id="userInput" placeholder="试着说：'压力好大' 或 '最近睡不好'" onkeydown="handleEnter(event)"></textarea>
+                            <button class="circle-btn send-btn" id="chatSendBtn" onclick="sendMessage()"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                        <div id="micStatus" style="display:none; color:var(--accent); font-size:12px; margin-top:8px; padding-left:10px;">
+                            <i class="fa-solid fa-wave-square"></i> 正在聆听...
+                        </div>
+                    </div>
+                    <div id="chatSupportNotice" class="support-notice"></div>
+                </div>
+            </div>
+
+            <!-- VIEW 1.5: 补充测评（与主对话共用同一智能体） -->
+            <div id="view-gad7" class="view-layer">
+                
+                <!-- 左侧：3D 伙伴与状态切换 -->
+                <div class="visual-side">
+                    <div class="model-container">
+                        <!-- 核心模型组件（GAD 版） -->
+                        <model-viewer 
+                            id="gad-lion-viewer"
+                            src="/models/original.glb" 
+                            alt="补充测评伙伴"
+                            auto-rotate 
+                            camera-controls 
+                            autoplay
+                            shadow-intensity="1"
+                            exposure="1.0"
+                            style="width: 100%; height: 100%; background-color: transparent; --poster-color: transparent;">
+                        </model-viewer>
+                    </div>
+
+                    <!-- 状态切换按钮 -->
+                    <div class="status-switcher">
+                        <button class="status-btn active" onclick="changeModel('happy')">开心</button>
+                        <button class="status-btn" onclick="changeModel('thumbsup')">点赞</button>
+                        <button class="status-btn" onclick="changeModel('sport')">运动</button>
+                        <button class="status-btn" onclick="changeModel('study')">学习</button>
+                        <button class="status-btn" onclick="changeModel('sleep')">休息</button>
+                        <button class="status-btn" onclick="changeModel('shy')">害羞</button>
+                        <button class="status-btn" onclick="changeModel('no')">拒绝</button>
+                    </div>
+
+                    <div class="welcome-text">
+                        <h1>Hi, 同学</h1>
+                        <p>这里可以继续补充压力、焦虑和睡眠相关情况。</p>
+                    </div>
+                </div>
+                
+                <!-- 右侧：聊天交互 -->
+                <div class="panel-side">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-brain" style="color:var(--primary)"></i> 补充测评</div>
+                        <div class="panel-actions">
+                            <button class="panel-action-btn" onclick="finalizeSession()" title="结束会话"><i class="fa-solid fa-file-circle-check"></i></button>
+                            <button class="panel-action-btn" onclick="restartSession()" title="重新开始"><i class="fa-solid fa-rotate-right"></i></button>
+                            <button class="panel-action-btn" onclick="exitSession()" title="退出会话"><i class="fa-solid fa-right-from-bracket"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-area" id="gadChatBox">
+                        <!-- 初始消息由 JS 动态添加 -->
+                    </div>
+
+                    <div class="input-zone">
+                        <div class="input-box-wrapper">
+                            <!-- 语音按钮（GAD 版） -->
+                            <button class="circle-btn" id="gadMicBtn" onclick="toggleVoice()" title="语音输入">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+
+                            <textarea id="gadUserInput" placeholder="继续补充你的状态变化、影响或担心的部分..." onkeydown="handleGadEnter(event)"></textarea>
+                            <button class="circle-btn send-btn" id="gadSendBtn" onclick="sendGadMessage()"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                        <div id="gadMicStatus" style="display:none; color:var(--accent); font-size:12px; margin-top:8px; padding-left:10px;">
+                            <i class="fa-solid fa-wave-square"></i> 正在聆听...
+                        </div>
+                    </div>
+                    <div id="gadSupportNotice" class="support-notice"></div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: 心理档案（仪表盘） -->
+            <div id="view-profile" class="view-layer">
+                <div class="visual-side profile-visual">
+                    
+                    <!-- 当前状态概览 -->
+                    <div class="weather-widget">
+                        <div class="status-overview-icon"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <div>
+                            <div style="font-size:14px; color:#666;">当前状态：<strong>等待记录</strong></div>
+                            <div class="weather-score">完成对话或补充测评后更新</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 雷达图 -->
+                    <div class="chart-box main-chart">
+                        <h3>多维状态扫描</h3>
+                        <div style="flex:1; width:100%; position:relative;">
+                            <canvas id="radarChart"></canvas>
+                            <div id="profileChartFallback" class="profile-chart-fallback" hidden>
+                                当前还没有足够的信息生成多维状态扫描。完成一次对话或补充测评后，可在这里查看相应结果。
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- VIEW 3: 冥想放松 -->
+            <div id="view-meditation" class="view-layer">
+                <!-- 手机端顶部标题 -->
+                <div class="mobile-top-title">白噪音空间</div>
+                
+                <div class="visual-side">
+                    <div class="breath-circle" style="--breathe-size:260px; --breathe-font:28px; width:var(--breathe-size); height:var(--breathe-size); border-radius:50%; background:linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); display:flex; justify-content:center; align-items:center; color:#fff; font-size:var(--breathe-font); font-weight:bold; box-shadow:0 10px 30px rgba(132, 250, 176, 0.4); animation: breathe 8s infinite ease-in-out;">
+                        <span id="breathText">吸气</span>
+                    </div>
+                </div>
+                <div class="panel-side">
+                    <div class="panel-header"><div class="panel-title">白噪音空间</div></div>
+                    <div class="chat-area">
+                        <div class="sound-grid" id="soundGrid">
+                            <!-- 动态生成声音卡片 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:20px; color:#333;">连接设置</h2>
+            
+            <h3 style="font-size:14px; color:#555; margin-top:10px;">暖心伙伴 (PHQ-9)</h3>
+            <label style="font-size:12px; color:#888;">Coze API Key</label>
+            <input type="password" class="m-input" id="apiKey" placeholder="输入 Key">
+            <label style="font-size:12px; color:#888;">Bot ID</label>
+            <input type="text" class="m-input" id="botId" value="d9fnh7d4shh9f0iucslg">
+
+            <h3 style="font-size:14px; color:#555; margin-top:10px;">补充测评视图</h3>
+            <label style="font-size:12px; color:#888;">说明</label>
+            <input type="text" class="m-input" id="gadApiKey" value="补充测评与主对话共用同一智能体，无需单独配置" readonly>
+            <label style="font-size:12px; color:#888;">共享 Bot ID</label>
+            <input type="text" class="m-input" id="gadBotId" value="d9fnh7d4shh9f0iucslg" readonly>
+
+            <button class="m-btn" onclick="saveSettings()">保存配置</button>
+        </div>
+    </div>
+
+    <!-- 学生身份入口 -->
+    <div class="modal" id="loginModal" style="z-index: 2000;">
+        <div class="modal-content">
+            <h2 style="margin-bottom:14px; color:#333; text-align: center;">校园心灵驿站</h2>
+            <p style="color:#666; font-size:14px; line-height:1.7; text-align:left; margin-bottom:18px;">请填写姓名和学号，用于本次会话称呼和后台记录关联。</p>
+            <label for="studentName" style="display:block; color:#555; font-size:13px; margin-bottom:6px;">姓名</label>
+            <input type="text" class="m-input" id="studentName" autocomplete="name" maxlength="40" placeholder="请输入姓名">
+            <label for="studentId" style="display:block; color:#555; font-size:13px; margin:12px 0 6px;">学号</label>
+            <input type="text" class="m-input" id="studentId" autocomplete="off" inputmode="numeric" maxlength="40" placeholder="请输入学号">
+            <p id="loginError" role="alert" style="min-height:20px; color:#c23b3b; font-size:13px; line-height:1.5; margin:8px 0 0;"></p>
+            <p style="color:#666; font-size:13px; line-height:1.7; text-align:left; margin-bottom:20px;">这里提供的是非诊断性的交流与自我了解支持，不能替代专业心理服务。若你正处于紧急危险中，请优先联系身边可信赖的人、学校心理健康中心、医院或当地紧急服务。</p>
+            <button class="m-btn" onclick="saveLoginInfo()">开始体验</button>
+        </div>
+    </div>
+
+    <!-- 移动端悬浮导航球 -->
+    <div id="mobile-nav-container">
+        <!-- 展开的菜单 -->
+        <div class="float-menu" id="floatMenu">
+            <div class="float-item" onclick="handleMobileNav('chat')">
+                <i class="fa-regular fa-comments"></i> 暖心伙伴
+            </div>
+            <div class="float-item" onclick="handleMobileNav('gad7')">
+                <i class="fa-solid fa-brain"></i> 补充测评
+            </div>
+            <div class="float-item" onclick="handleMobileNav('profile')">
+                <i class="fa-solid fa-chart-simple"></i> 我的状态
+            </div>
+            <div class="float-item" onclick="handleMobileNav('meditation')">
+                <i class="fa-solid fa-leaf"></i> 白噪音空间
+            </div>
+            <div class="float-item" onclick="toggleDarkMode(); toggleFloatMenu()">
+                <i class="fa-solid fa-moon"></i> 夜间模式
+            </div>
+        </div>
+        <!-- 悬浮球 -->
+        <div class="float-ball" onclick="toggleFloatMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </div>
+    </div>
+    <script src="./src/app/soundGridRuntime.js"></script>
+    <script src="./src/app/supplementalAssessmentRuntime.js"></script>
+    <script src="./src/app/modelRuntime.js"></script>
+    <script src="./src/app/navigationRuntime.js"></script>
+    <script src="./src/app/meditationRuntime.js"></script>
+    <script src="./src/app/profileChartRuntime.js"></script>
+    <script src="./src/app/formRuntime.js"></script>
+    <script src="./src/app/messageRuntime.js"></script>
+    <script src="./src/app/speechRuntime.js"></script>
+    <script src="./src/app/chatRuntime.js"></script>
+    <script src="./src/app/sessionRuntime.js"></script>
+    <script src="./src/app/statusNoticeRuntime.js"></script>
+    <script src="./src/app/safetyRuntime.js"></script>
+    <script src="./src/app/sessionControlRuntime.js"></script>
+    <script src="./src/app/uploadRuntime.js"></script>
+    <script src="./src/app/uploadDebugRuntime.js"></script>
+    <script src="./src/app/loginRuntime.js"></script>
+    <script src="./src/app/reportDraftRuntime.js"></script>
+    <script src="./src/app/pageRuntime.js"></script>
+</body>
+</html>
+
+

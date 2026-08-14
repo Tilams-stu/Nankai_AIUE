@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "profile": "mixed",
+  "status": "stage-1-boundaries-established",
+  "required_files": [
+    "README.md",
+    "project-structure.json"
+  ],
+  "required_directories": [
+    "Mental-LLM_JxFdj",
+    "md",
+    "outputs",
+    "scripts",
+    "archive",
+    "artifacts",
+    "tmp"
+  ],
+  "owners": {
+    "application": "Mental-LLM_JxFdj",
+    "application_docs": "Mental-LLM_JxFdj/docs",
+    "project_docs": "md",
+    "deliverables": "outputs",
+    "evidence": "artifacts",
+    "automation": "scripts",
+    "workspace_archive": "archive",
+    "legacy_input": "initial",
+    "temporary": "tmp"
+  },
+  "generated_directories": [
+    "Mental-LLM_JxFdj/dist",
+    "Mental-LLM_JxFdj/public/runtime"
+  ],
+  "dependency_directories": [
+    "Mental-LLM_JxFdj/node_modules"
+  ],
+  "temporary_directories": [
+    "tmp",
+    "Mental-LLM_JxFdj/tmp",
+    "Mental-LLM_JxFdj/node_modules"
+  ],
+  "protected_directories": [
+    "Mental-LLM_JxFdj/.env",
+    "Mental-LLM_JxFdj/server/workflow_audit"
+  ],
+  "planned_migrations": [
+    {
+      "from": "outputs/09_智能体设计",
+      "to": "md/02-design or md/06-reference",
+      "reason": "Separate living design sources from exported deliverables after reference review."
+    },
+    {
+      "from": "outputs/02_访谈分析",
+      "to": "md/01-research/analysis or deliverables/research",
+      "reason": "Separate working analysis data from final research outputs."
+    },
+    {
+      "from": "Mental-LLM_JxFdj/testing",
+      "to": "review before removal",
+      "reason": "Resolve overlap with tests and __tests__ without deleting an unknown user-owned path."
+    },
+    {
+      "from": "initial",
+      "to": "archive/prototypes/initial-2026-07",
+      "reason": "Move only after all historical references are updated or explicitly preserved."
+    }
+  ],
+  "exceptions": [
+    {
+      "path": "outputs",
+      "reason": "Existing handoff and historical documents refer to this path; preserve during stage 1."
+    },
+    {
+      "path": "Mental-LLM_JxFdj/public/runtime",
+      "reason": "Application runtime expects generated modules at this path."
+    }
+  ]
+}

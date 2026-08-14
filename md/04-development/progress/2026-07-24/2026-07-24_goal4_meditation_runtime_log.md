@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Meditation Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层、白噪音运行时、模型心情切换运行时和导航运行时外置之后，抽取第四个低耦合交互切片：冥想呼吸循环。将 `breathText` 的定时文案更新、呼吸循环 timer 状态和简单点击缩放反馈迁移到 `src/app/meditationRuntime.js`，`index.html` 只保留 `startBreathLoop`、`stopBreathLoop`、`toggleSound` 兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/meditationRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_meditation_runtime_check.md`。
+- **技术亮点与潜在风险**：冥想运行时通过 `window.MentalMeditationRuntime` 暴露能力，呼吸循环定时器状态不再存放在 `index.html`。`switchView` 包装函数仍负责何时启动或停止呼吸循环，因为它还协调图表初始化和 GAD-7 首次开场白；移动端浮窗拖拽后的开关覆盖也改为调用原 `toggleFloatMenu` 包装函数，继续复用导航运行时。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认呼吸文案、定时器清理和点击缩放行为可工作。后续 Goal 4 仍需继续拆图表、设置弹窗、输入框自适应、语音输入、消息渲染和聊天服务。

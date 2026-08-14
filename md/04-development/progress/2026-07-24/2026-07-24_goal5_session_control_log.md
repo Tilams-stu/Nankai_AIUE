@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 5 Session Control Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划，在 typed session / safety / upload 状态已经进入页面显示之后，补上 roadmap 中要求的“暂停 / 重新开始 / 退出”行为。新增 `sessionControlRuntime.js`，让聊天页和 GAD 页头部可以暂停输入、重开当前会话，或退出回登录边界，并把这些动作同步回 typed session boundary。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/src/app/sessionControlRuntime.js`、`Mental-LLM_JxFdj/src/app/sessionRuntime.js`、`Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/styles/components.css`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`testing/2026-07-24_goal5_session_control_check.md`。
+- **技术亮点与潜在风险**：这一轮让 Goal 5 的页面控制不再只是被动显示状态，而是开始有真正的“暂停 / 重开 / 退出”行为。`restartSession()` 会重建 typed session，并重置聊天面板、输入框、支持提示和登录入口；`exitSession()` 会把 typed userControl 标记为 `exit` 后回到登录边界；`saveLoginInfo()` 则会把 consent 和 userControl 明确写回 typed session。`runtime:build`、`typecheck`、`build`、`smoke` 和 `SESSION_CONTROL_RUNTIME_PASS` 均通过。后续还需要决定这些控制是否要和未来的后台记录生命周期联动，而不是只停留在前端会话层。

@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 5 Session Runtime Bridge Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划，从 Goal 5 的领域模型落地推进到页面接线。新增 `src/app/sessionRuntime.js`，通过 `public/runtime/` 下生成的 `appState.js` 和 `sessionService.js` 把 typed session state 接到当前 legacy 页面中，并让登录流程和视图切换开始回写到 typed session。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/src/app/sessionRuntime.js`、`Mental-LLM_JxFdj/src/app/appState.ts`、`Mental-LLM_JxFdj/src/services/sessionService.ts`、`Mental-LLM_JxFdj/tsconfig.runtime.json`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`testing/2026-07-24_goal5_session_runtime_bridge_check.md`。
+- **技术亮点与潜在风险**：这一步让 Goal 5 不再只是“领域模型存在”，而是开始让页面真的用上它们。当前页面加载时会初始化 synthetic 会话，并把 typed identity 同步回旧的 `CFG`；登录后身份更新也走 typed service。`runtime:build`、`typecheck`、`build`、`smoke` 和 `SESSION_RUNTIME_BRIDGE_PASS` 均通过。后续仍需继续让 safety/upload 领域状态进入页面展示和流程控制，而不是只停在类型层。

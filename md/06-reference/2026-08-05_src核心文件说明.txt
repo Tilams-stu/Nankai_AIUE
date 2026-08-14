@@ -1,0 +1,22 @@
+src 核心文件说明
+==================================================
+
+在 src 中，我主要锁定了几类核心文件：pageRuntime.js 负责接收用户输入和展示智能体回复；sessionRuntime.js 负责会话、身份、历史消息和状态管理；conversationContextService.ts 负责把用户原话、历史对话、当前阶段和安全状态整理成发送给智能体的上下文；conversationPolicyService.ts 负责决定当前应该继续交流、追问还是进行安全确认；safetyRuleService.ts 和 safetyStatus.ts 负责安全线索识别、风险状态管理以及历史风险峰值保留；reportAutoUpdateCoordinator.ts 决定什么时候创建或更新报告；reportTemplateService.ts 负责生成报告内容。整个核心流程可以概括为：页面接收输入，会话保存状态，本地规则和对话策略共同整理上下文，再调用智能体生成回复，最后根据新的信息更新后台报告。
+
+
+核心链路：
+
+用户输入
+  -> pageRuntime.js
+  -> sessionRuntime.js
+  -> conversationContextService.ts
+  -> NK-GeniOS 智能体
+  -> 智能体回复与安全校验
+  -> reportAutoUpdateCoordinator.ts
+  -> reportTemplateService.ts
+  -> 后台报告
+
+
+答辩时可以简单说明：
+
+src 中不是每个文件都承担同样的作用。我重点关注的是“输入、会话状态、上下文组装、安全判断、报告更新”这条主链路。这样可以把前端页面、智能体调用、本地规则和后台报告之间的关系对应起来，也能说明这次重构不是单纯拆分文件，而是把不同职责放到了相对独立的模块中。

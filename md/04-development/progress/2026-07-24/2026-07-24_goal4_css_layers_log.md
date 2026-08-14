@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 CSS Layers Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在已完成 CSS 外置的基础上，将 `src/styles/legacy-page.css` 拆成 `base.css`、`layout.css`、`components.css` 三层，并保留 `legacy-page.css` 作为 HTML 唯一样式入口。
+- **代码变更栈**：涉及 `Mental-LLM_JxFdj/src/styles/legacy-page.css`、`Mental-LLM_JxFdj/src/styles/base.css`、`Mental-LLM_JxFdj/src/styles/layout.css`、`Mental-LLM_JxFdj/src/styles/components.css`、`Mental-LLM_JxFdj/src/styles/README.md`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_css_layers_check.md`。
+- **技术亮点与潜在风险**：拆分后 `base.css` 49 行、`layout.css` 60 行、`components.css` 346 行，总量与原始 455 行一致，并通过 `@import` 保持加载顺序；`npm run typecheck`、`npm run build`、`npm run smoke` 均通过，浏览器验证确认 3 个 import 均被解析且页面仍有样式。`components.css` 仍较宽，后续需要更强视觉回归后再继续细拆；JS 与 DOM 仍保留在 `index.html`，此前不稳定的 JS 外置尝试没有保留。

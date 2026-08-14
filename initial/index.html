@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>校园心灵驿站</title>
+
+    <!-- PWA 图标（添加到桌面） -->
+    <link rel="icon" type="image/png" sizes="192x192" href="tubiao.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="tubiao.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="心灵驿站">
+    <meta name="theme-color" content="#7c5cfc">
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- 1. 字体与图标 -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 本地化，避免 CDN 不可用 -->
+    <link href="./libs/fontawesome/css/all.min.css" rel="stylesheet">
+    
+    <!-- 2. 功能库 (优先使用本地 libs，避免 CDN 报错) -->
+    <script src="./libs/chart.js"></script>
+    <script src="./libs/marked.min.js"></script>
+    <!-- Google 3D 模型查看器 -->
+    <script type="module" src="./libs/model-viewer.min.js"></script>
+
+    <style>
+        :root {
+            /* --- 风格定义：清新、自然、疗愈 --- */
+            --bg-base: #f7f9fc;
+            --primary: #4ECDC4;      /* 薄荷绿 */
+            --accent: #FF6B6B;       /* 暖红 */
+            --text-main: #2D3436;
+            --text-light: #636E72;
+            --radius-lg: 32px;
+            --shadow-soft: 0 10px 40px rgba(0,0,0,0.03);
+            --glass: rgba(255,255,255,0.75);
+            --card-bg: #fff;
+            --input-bg: #f1f2f6;
+            --sidebar-bg: #fff;
+            --agent-bubble-bg: #fff;
+            --user-bubble-bg: #4ECDC4;
+            --user-bubble-text: #fff;
+        }
+
+        /* 暗黑模式变量覆盖 */
+        body.dark-mode {
+            --bg-base: #1a1a2e;
+            --text-main: #e0e0e0;
+            --text-light: #a0a0a0;
+            --glass: rgba(30, 30, 46, 0.85);
+            --card-bg: #252538;
+            --input-bg: #2a2a3e;
+            --sidebar-bg: #16213e;
+            --shadow-soft: 0 10px 40px rgba(0,0,0,0.3);
+            --agent-bubble-bg: #32324a;
+            --user-bubble-bg: #4ECDC4; /* 保持鲜艳或稍微调暗 */
+            --user-bubble-text: #1a1a2e; /* 深色文字增加对比 */
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+            height: 100vh; width: 100vw;
+            overflow: hidden;
+            background: var(--bg-base);
+            /* 柔和背景纹理 */
+            background-image: 
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.3) 0px, transparent 50%);
+            display: flex;
+            align-items: center; justify-content: center;
+        }
+
+        /* 主容器 */
+        .app-frame {
+            width: 96vw; height: 92vh;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius-lg);
+            border: 1px solid #fff;
+            box-shadow: var(--shadow-soft);
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* 左侧导航 */
+        .nav-sidebar {
+            width: 90px; background: var(--sidebar-bg);
+            border-right: 1px solid rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; align-items: center; padding: 40px 0;
+            z-index: 20;
+        }
+
+        .nav-btn {
+            width: 56px; height: 56px; border-radius: 18px;
+            border: none; background: transparent;
+            color: #b2bec3; font-size: 22px; cursor: pointer;
+            margin-bottom: 25px; transition: 0.3s;
+        }
+        .nav-btn:hover { background: var(--input-bg); color: var(--text-light); }
+        .nav-btn.active {
+            background: var(--primary); color: #fff;
+            box-shadow: 0 8px 20px rgba(78, 205, 196, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* 内容容器 */
+        .content-container { flex: 1; position: relative; }
+
+        .view-layer {
+            position: absolute; width: 100%; height: 100%;
+            display: none; opacity: 0; transition: opacity 0.4s ease;
+        }
+        .view-layer.active { display: flex; opacity: 1; }
+
+        /* === 布局：左视觉(Visual) + 右面板(Panel) === */
+        
+        .visual-side {
+            flex: 1; position: relative;
+            display: flex; flex-direction: column; 
+            justify-content: center; align-items: center;
+            padding: 20px;
+        }
+
+        /* 3D 模型容器 */
+        .model-container {
+            width: 100%; height: 60%; 
+            position: relative; z-index: 10;
+        }
+        model-viewer::part(default-progress-bar) { display: none; }
+
+        /* 状态切换按钮组 */
+        .status-switcher {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; 
+            margin-top: 20px; z-index: 20; max-width: 500px;
+            background: rgba(255,255,255,0.6); padding: 8px; border-radius: 20px;
+        }
+        .status-btn {
+            border: none; background: transparent; padding: 6px 14px;
+            border-radius: 15px; font-size: 13px; color: #666; cursor: pointer;
+            transition: 0.2s; white-space: nowrap;
+        }
+        .status-btn:hover { background: rgba(255,255,255,0.8); }
+        .status-btn.active {
+            background: #fff; color: var(--primary); font-weight: bold;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .welcome-text {
+            text-align: center; color: var(--text-main); margin-top: 30px;
+        }
+        .welcome-text h1 { font-size: 32px; margin-bottom: 8px; font-weight: 700; color: #2d3436; }
+        .welcome-text p { font-size: 16px; color: #636e72; background: rgba(255,255,255,0.5); padding: 8px 20px; border-radius: 20px; }
+
+        /* 右侧面板 */
+        .panel-side {
+            width: 500px; background: var(--card-bg);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.02);
+            display: flex; flex-direction: column; z-index: 15;
+        }
+
+        .panel-header {
+            height: 80px; padding: 0 30px;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+        .panel-title { font-size: 20px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 10px; }
+        .status-tag { font-size: 12px; background: rgba(78, 205, 196, 0.1); color: var(--primary); padding: 5px 12px; border-radius: 20px; font-weight: 600; }
+
+        /* 聊天区域 */
+        .chat-area { flex: 1; padding: 20px 30px; overflow-y: auto; background: transparent; }
+        .msg-item { margin-bottom: 24px; display: flex; flex-direction: column; animation: slideUp 0.3s ease; }
+        
+        .bubble {
+            max-width: 85%; padding: 16px 20px; border-radius: 20px;
+            font-size: 15px; line-height: 1.7; position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02); word-wrap: break-word;
+        }
+        .msg-item.agent .bubble { align-self: flex-start; background: var(--agent-bubble-bg); color: var(--text-main); border-top-left-radius: 4px; border: 1px solid rgba(0,0,0,0.05); }
+        .msg-item.user .bubble { align-self: flex-end; background: var(--user-bubble-bg); color: var(--user-bubble-text); border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3); }
+
+        /* 输入区域 */
+        .input-zone { padding: 20px 30px; background: var(--card-bg); border-top: 1px solid rgba(0,0,0,0.05); }
+        .input-box-wrapper {
+            background: var(--input-bg); border-radius: 24px;
+            padding: 8px 12px; display: flex; align-items: center; gap: 10px;
+            transition: 0.2s;
+            color: var(--text-main);
+        }
+        .input-box-wrapper:focus-within { background: var(--card-bg); border: 2px solid var(--primary); box-shadow: 0 0 15px rgba(78, 205, 196, 0.15); }
+        
+        input { flex: 1; border: none; background: transparent; height: 44px; font-size: 16px; padding: 0 10px; outline: none; color: var(--text-main); }
+        
+        .circle-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: none;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 18px; cursor: pointer; transition: 0.2s;
+            color: var(--text-light); background: transparent;
+        }
+        .circle-btn:hover { background: var(--input-bg); color: var(--text-main); }
+        .circle-btn.listening { color: var(--accent); background: #FFF0F0; animation: pulse 1.5s infinite; }
+        
+        .send-btn { background: var(--primary); color: #fff; }
+        .send-btn:hover { background: #45b7af; transform: scale(1.05); }
+
+        /* === 心理仪表盘专用样式 === */
+        .profile-visual {
+            background: transparent; padding: 20px 40px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            align-items: center; overflow-y: auto;
+        }
+        .weather-widget {
+            display: flex; align-items: center; gap: 20px;
+            background: var(--card-bg); padding: 15px 30px; border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03); width: 90%;
+            color: var(--text-main);
+        }
+        .weather-icon { font-size: 36px; animation: spinSun 10s linear infinite; }
+        .weather-score { font-size: 24px; font-weight: bold; color: var(--text-main); }
+        .weather-score span { color: var(--primary); font-size: 32px; }
+
+        .chart-box {
+            background: var(--card-bg); border-radius: 20px; width: 90%;
+            padding: 15px; border: 1px solid rgba(0,0,0,0.05); display: flex; flex-direction: column;
+        }
+        .chart-box h3 { font-size: 14px; color: var(--text-light); margin: 0 0 10px 0; }
+        .main-chart { height: 45%; }
+        .sub-chart { height: 30%; }
+        .tag { padding: 6px 14px; border-radius: 15px; font-size: 13px; }
+        .tag.blue { background:#E3F2FD; color:#1565C0; }
+        .tag.green { background:#E8F5E9; color:#2E7D32; }
+        .tag.orange { background:#FFF3E0; color:#EF6C00; }
+
+        /* 卡片组件 */
+        .data-card { background: var(--card-bg); border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.05); }
+        .data-card h3 { margin: 0 0 15px 0; font-size: 16px; color: var(--text-main); }
+
+        /* 动画 */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+        @keyframes spinSun { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* 设置弹窗 */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8); backdrop-filter: blur(5px);
+            z-index: 100; display: none; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #fff; width: 400px; padding: 30px; border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1); border: 1px solid #eee;
+        }
+        .m-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 12px; margin: 10px 0 20px 0; }
+        .m-btn { width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 12px; cursor: pointer; }
+
+        /* 悬浮球默认隐藏 (PC端) */
+        #mobile-nav-container { display: none; position: fixed; bottom: 120px; right: 20px; z-index: 1000; touch-action: none; }
+        
+        .float-ball {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: #fff; box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 28px; cursor: pointer; border: 2px solid var(--primary);
+            transition: transform 0.1s; /* 拖拽时不加动画，点击缩放时可能有 */
+            user-select: none;
+        }
+        .float-ball:active { transform: scale(0.95); }
+
+        .float-menu {
+            position: absolute; bottom: 60px; right: 0;
+            background: #fff; border-radius: 16px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            padding: 10px; width: 140px;
+            transform-origin: bottom right;
+            transform: scale(0); opacity: 0;
+            transition: all 0.25s ease;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .float-menu.active { transform: scale(1); opacity: 1; }
+
+        .float-item {
+            padding: 8px 12px; border-radius: 10px;
+            font-size: 13px; color: #555; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .float-item:hover { background: #f0fdfc; color: var(--primary); }
+        .float-item i { width: 18px; text-align: center; }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .app-frame { width: 100%; height: 100%; border-radius: 0; flex-direction: column; }
+            
+            /* 隐藏原有的侧边栏 */
+            .nav-sidebar { display: none !important; }
+
+            /* 隐藏 3D 模型区域 (仅在 Chat 和 GAD7 视图下隐藏整个 visual-side) */
+            #view-chat .visual-side, #view-gad7 .visual-side { display: none !important; }
+            #view-chat .panel-side, #view-gad7 .panel-side { width: 100%; height: 100%; border-radius: 0; }
+            #view-chat .panel-header, #view-gad7 .panel-header { padding-left: 15px; }
+
+            /* Profile 视图适配 */
+            #view-profile { flex-direction: column; overflow-y: auto; }
+            #view-profile .visual-side { 
+                flex: none; width: 100%; padding: 15px; 
+                background: transparent; /* 去除可能的背景 */
+            }
+            #view-profile .panel-side { 
+                flex: none; width: 100%; box-shadow: none; 
+                border-radius: 20px 20px 0 0; min-height: 400px;
+            }
+
+            /* Meditation 视图适配 */
+            #view-meditation { flex-direction: column; }
+            #view-meditation .visual-side { flex: 0 0 40%; order: 2; } /* 圆环在中间 */
+            #view-meditation .panel-side { flex: 1; width: 100%; border-radius: 20px 20px 0 0; order: 3; } /* 音效在下方 */
+            #view-meditation .panel-header { display: none; } /* 隐藏原有的panel header */
+            
+            /* 新增：手机端特有的标题栏 */
+            .mobile-top-title { display: block !important; padding: 15px; text-align: center; font-weight: bold; color: var(--text-main); font-size: 18px; order: 1; width: 100%; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 50; }
+
+            /* 新增：手机端特有的标题栏 */
+            .mobile-top-title { display: block !important; padding: 15px; text-align: center; font-weight: bold; color: var(--text-main); font-size: 18px; order: 1; width: 100%; background: var(--card-bg); box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 50; }
+
+            /* 通用样式调整 */
+            .panel-side { box-shadow: none; }
+            .input-zone { padding: 10px 15px 20px 15px; }
+            
+            /* 悬浮球样式 */
+            #mobile-nav-container { display: block; }
+        }
+
+        /* === 横屏平板适配 (769px - 1200px) === */
+        @media (min-width: 769px) and (max-width: 1200px) {
+
+            /* 1. 左侧导航栏缩减 */
+            .nav-sidebar { width: 70px; padding: 24px 0; }
+            .nav-btn {
+                width: 46px; height: 46px; border-radius: 14px;
+                font-size: 18px; margin-bottom: 16px;
+            }
+
+            /* 2. 右侧面板 — 从固定宽度改为比例 */
+            .panel-side { width: 42%; min-width: 340px; }
+            .panel-header { height: 64px; padding: 0 20px; }
+            .panel-title { font-size: 17px; }
+            .chat-area, .input-zone { padding: 14px 20px; }
+            .bubble { font-size: 14px; padding: 14px 18px; }
+            .msg-item { margin-bottom: 18px; }
+
+            textarea#userInput, textarea#gadUserInput {
+                font-size: 14px; height: 40px; min-height: 40px; max-height: 120px;
+            }
+            .input-box-wrapper input { font-size: 14px; height: 40px; }
+            .circle-btn { width: 36px; height: 36px; font-size: 16px; }
+
+            /* 3. 左侧视觉区缩放 */
+            .visual-side { padding: 15px; }
+            .model-container { height: 55%; }
+            .status-switcher { gap: 6px; margin-top: 12px; max-width: none; }
+            .status-btn { font-size: 12px; padding: 5px 10px; }
+            .welcome-text { margin-top: 12px; }
+            .welcome-text h1 { font-size: 22px; }
+            .welcome-text p { font-size: 13px; padding: 6px 16px; }
+
+            /* 4. Profile 仪表盘 — 上下堆叠，图表各占全宽 */
+            #view-profile .profile-visual {
+                display: flex;
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px 20px;
+                overflow-y: auto;
+            }
+            #view-profile .weather-widget { width: 100%; flex-shrink: 0; padding: 12px 20px; }
+            #view-profile .chart-box.main-chart,
+            #view-profile .chart-box.sub-chart {
+                flex: 1; min-height: 220px;
+                overflow: hidden; /* 防止 canvas 溢出 */
+            }
+            /* 修复 flex 子项 min-height:auto 导致无法收缩 */
+            #view-profile .chart-box > div { min-height: 0; }
+            #view-profile .data-card { padding: 18px; margin-bottom: 15px; }
+
+            /* 5. Meditation 白噪音空间 */
+            .sound-grid { gap: 15px; }
+            .sound-card { padding: 15px; }
+            .sound-icon-wrapper { width: 50px; height: 50px; font-size: 20px; }
+            .sound-info h4 { font-size: 14px; }
+            .sound-info span { font-size: 11px; }
+
+            /* 呼吸圆环适配 (通过 CSS 变量控制) */
+            #view-meditation .breath-circle {
+                --breathe-size: 210px;
+                --breathe-font: 22px;
+            }
+
+            /* 6. 弹窗 */
+            .modal-content { width: 360px; }
+        }
+
+        /* 修复输入框样式 - 自动增高 */
+        textarea#userInput, textarea#gadUserInput {
+            flex: 1; border: none; background: transparent; 
+            height: 44px; min-height: 44px; max-height: 144px; /* 约5行高度 */
+            font-size: 16px; padding: 10px 10px; 
+            outline: none; resize: none; overflow-y: auto;
+            font-family: inherit; line-height: 24px;
+            color: var(--text-main);
+        }
+
+        /* 移动端通用标题，默认隐藏 */
+        .mobile-top-title { display: none; }
+
+        /* === 白噪音空间增强样式 === */
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+        .sound-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+        }
+        .sound-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .sound-card.active { border-color: var(--primary); background: rgba(78, 205, 196, 0.05); }
+        
+        .sound-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--input-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: var(--text-light);
+            transition: 0.3s;
+        }
+        .sound-card.active .sound-icon-wrapper { background: var(--primary); color: #fff; animation: pulse 2s infinite; }
+        
+        .sound-info { text-align: center; }
+        .sound-info h4 { margin: 0; font-size: 15px; color: var(--text-main); }
+        .sound-info span { font-size: 12px; color: var(--text-light); }
+
+        .sound-volume {
+            width: 100%;
+            display: none; /* 仅在激活时显示 */
+            margin-top: 5px;
+        }
+        .sound-card.active .sound-volume { display: block; }
+        
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: var(--input-bg);
+            border-radius: 2px;
+            outline: none;
+        }
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-frame">
+        <!-- 侧边导航 -->
+        <nav class="nav-sidebar">
+            <button class="nav-btn active" onclick="switchView('chat', this)" title="聊天"><i class="fa-regular fa-comments"></i></button>
+            <button class="nav-btn" onclick="switchView('gad7', this)" title="焦虑检测"><i class="fa-solid fa-brain"></i></button>
+            <button class="nav-btn" onclick="switchView('profile', this)" title="状态"><i class="fa-solid fa-chart-simple"></i></button>
+            <button class="nav-btn" onclick="switchView('meditation', this)" title="放松"><i class="fa-solid fa-leaf"></i></button>
+            <div style="flex:1"></div>
+            <button class="nav-btn" onclick="toggleDarkMode()" title="夜间模式" id="pcModeBtn"><i class="fa-solid fa-moon"></i></button>
+        </nav>
+
+        <main class="content-container">
+            
+            <!-- VIEW 1: 聊天 + 3D变身 -->
+            <div id="view-chat" class="view-layer active">
+                
+                <!-- 左侧：3D玩偶与状态切换 -->
+                <div class="visual-side">
+                    <div class="model-container">
+                        <!-- 核心模型组件 -->
+                        <model-viewer 
+                            id="lion-viewer"
+                            src="./original.glb" 
+                            alt="心理伙伴"
+                            auto-rotate 
+                            camera-controls 
+                            autoplay
+                            shadow-intensity="1"
+                            exposure="1.0"
+                            style="width: 100%; height: 100%; background-color: transparent; --poster-color: transparent;">
+                        </model-viewer>
+                    </div>
+
+                    <!-- 状态切换按钮 (包含新增的动作) -->
+                    <div class="status-switcher">
+                        <button class="status-btn active" onclick="changeModel('happy')">😊 开心</button>
+                        <button class="status-btn" onclick="changeModel('thumbsup')">👍 点赞</button>
+                        <button class="status-btn" onclick="changeModel('sport')">🏃 运动</button>
+                        <button class="status-btn" onclick="changeModel('study')">🎓 学习</button>
+                        <button class="status-btn" onclick="changeModel('sleep')">😴 休息</button>
+                        <button class="status-btn" onclick="changeModel('shy')">🙈 害羞</button>
+                        <button class="status-btn" onclick="changeModel('no')">🙅 拒绝</button>
+                    </div>
+
+                    <div class="welcome-text">
+                        <h1>Hi, 同学</h1>
+                        <p>这里是你的专属树洞，随时倾听。</p>
+                    </div>
+                </div>
+                
+                <!-- 右侧：聊天交互 -->
+                <div class="panel-side">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-face-smile-beam" style="color:var(--primary)"></i> 暖心伙伴</div>
+                        <div class="status-tag">在线</div>
+                    </div>
+                    
+                    <div class="chat-area" id="chatBox">
+                        <div class="msg-item agent">
+                            <div class="bubble">你好呀！我是你的百变小狮子。🦁<br>我会根据你的心情变身哦！</div>
+                        </div>
+                    </div>
+
+                    <div class="input-zone">
+                        <div class="input-box-wrapper">
+                            <!-- 语音按钮 -->
+                            <button class="circle-btn" id="micBtn" onclick="toggleVoice()" title="语音输入">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                            
+                            <textarea id="userInput" placeholder="试着说：'压力好大' 或 '不要再卷了'" onkeydown="handleEnter(event)"></textarea>
+                            <button class="circle-btn send-btn" onclick="sendMessage()"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                        <div id="micStatus" style="display:none; color:var(--accent); font-size:12px; margin-top:8px; padding-left:10px;">
+                            <i class="fa-solid fa-wave-square"></i> 正在聆听...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 1.5: GAD-7 焦虑检测 (与暖心伙伴界面一致) -->
+            <div id="view-gad7" class="view-layer">
+                
+                <!-- 左侧：3D玩偶与状态切换 -->
+                <div class="visual-side">
+                    <div class="model-container">
+                        <!-- 核心模型组件 (GAD版) -->
+                        <model-viewer 
+                            id="gad-lion-viewer"
+                            src="./original.glb" 
+                            alt="焦虑检测伙伴"
+                            auto-rotate 
+                            camera-controls 
+                            autoplay
+                            shadow-intensity="1"
+                            exposure="1.0"
+                            style="width: 100%; height: 100%; background-color: transparent; --poster-color: transparent;">
+                        </model-viewer>
+                    </div>
+
+                    <!-- 状态切换按钮 -->
+                    <div class="status-switcher">
+                        <button class="status-btn active" onclick="changeModel('happy')">😊 开心</button>
+                        <button class="status-btn" onclick="changeModel('thumbsup')">👍 点赞</button>
+                        <button class="status-btn" onclick="changeModel('sport')">🏃 运动</button>
+                        <button class="status-btn" onclick="changeModel('study')">🎓 学习</button>
+                        <button class="status-btn" onclick="changeModel('sleep')">😴 休息</button>
+                        <button class="status-btn" onclick="changeModel('shy')">🙈 害羞</button>
+                        <button class="status-btn" onclick="changeModel('no')">🙅 拒绝</button>
+                    </div>
+
+                    <div class="welcome-text">
+                        <h1>Hi, 同学</h1>
+                        <p>这里是 GAD-7 焦虑检测空间。</p>
+                    </div>
+                </div>
+                
+                <!-- 右侧：聊天交互 -->
+                <div class="panel-side">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-brain" style="color:var(--primary)"></i> 烦恼树洞</div>
+                        <div class="status-tag">在线</div>
+                    </div>
+                    
+                    <div class="chat-area" id="gadChatBox">
+                        <!-- 初始消息由 JS 动态添加 -->
+                    </div>
+
+                    <div class="input-zone">
+                        <div class="input-box-wrapper">
+                            <!-- 语音按钮 (GAD版) -->
+                            <button class="circle-btn" id="gadMicBtn" onclick="toggleVoice()" title="语音输入">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+
+                            <textarea id="gadUserInput" placeholder="请回复助手的提问..." onkeydown="handleGadEnter(event)"></textarea>
+                            <button class="circle-btn send-btn" onclick="sendGadMessage()"><i class="fa-solid fa-arrow-up"></i></button>
+                        </div>
+                        <div id="gadMicStatus" style="display:none; color:var(--accent); font-size:12px; margin-top:8px; padding-left:10px;">
+                            <i class="fa-solid fa-wave-square"></i> 正在聆听...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: 心理档案 (仪表盘) -->
+            <div id="view-profile" class="view-layer">
+                <div class="visual-side profile-visual">
+                    
+                    <!-- 1. 天气 -->
+                    <div class="weather-widget">
+                        <div class="weather-icon"><i class="fa-solid fa-sun" style="color:#FFB100;"></i></div>
+                        <div>
+                            <div style="font-size:14px; color:#666;">今日心灵天气：<strong>晴朗</strong></div>
+                            <div class="weather-score">心情指数 <span>85</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 雷达图 -->
+                    <div class="chart-box main-chart">
+                        <h3>多维状态扫描</h3>
+                        <div style="flex:1; width:100%; position:relative;">
+                            <canvas id="radarChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 3. 折线图 -->
+                    <div class="chart-box sub-chart">
+                        <h3>近7天情绪波动</h3>
+                        <div style="flex:1; width:100%; position:relative;">
+                            <canvas id="lineChart"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="panel-side">
+                    <div class="panel-header"><div class="panel-title">我的状态</div></div>
+                    <div class="chat-area" style="background:transparent;">
+                        <div class="data-card">
+                            <h3><i class="fa-solid fa-quote-left" style="color:var(--accent)"></i> 本周关键词</h3>
+                            <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                                <span class="tag blue">自我成长</span>
+                                <span class="tag green">人际关系</span>
+                                <span class="tag orange">轻微焦虑</span>
+                            </div>
+                        </div>
+                        <div class="data-card">
+                            <h3>AI 建议</h3>
+                            <p style="line-height:1.6; color:var(--text-light); font-size:14px;">
+                                你今天的状态非常积极！虽然"人际关系"略有压力，但你的自我调节能力很强。建议今晚听一段白噪音助眠，保持好状态。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: 冥想放松 -->
+            <div id="view-meditation" class="view-layer">
+                <!-- 手机端顶部标题 -->
+                <div class="mobile-top-title">白噪音空间</div>
+                
+                <div class="visual-side">
+                    <div class="breath-circle" style="--breathe-size:260px; --breathe-font:28px; width:var(--breathe-size); height:var(--breathe-size); border-radius:50%; background:linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); display:flex; justify-content:center; align-items:center; color:#fff; font-size:var(--breathe-font); font-weight:bold; box-shadow:0 10px 30px rgba(132, 250, 176, 0.4); animation: breathe 8s infinite ease-in-out;">
+                        <span id="breathText">吸气</span>
+                    </div>
+                </div>
+                <div class="panel-side">
+                    <div class="panel-header"><div class="panel-title">白噪音空间</div></div>
+                    <div class="chat-area">
+                        <div class="sound-grid" id="soundGrid">
+                            <!-- 动态生成声音卡片 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 设置弹窗 -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <h2 style="margin-bottom:20px; color:#333;">连接设置</h2>
+            
+            <h3 style="font-size:14px; color:#555; margin-top:10px;">暖心伙伴 (PHQ-9)</h3>
+            <label style="font-size:12px; color:#888;">Coze API Key</label>
+            <input type="password" class="m-input" id="apiKey" placeholder="输入 Key">
+            <label style="font-size:12px; color:#888;">Bot ID</label>
+            <input type="text" class="m-input" id="botId" value="d4hd19coj60m6gidvts0">
+
+            <h3 style="font-size:14px; color:#555; margin-top:10px;">焦虑检测 (GAD-7)</h3>
+            <label style="font-size:12px; color:#888;">Coze API Key</label>
+            <input type="password" class="m-input" id="gadApiKey" placeholder="输入 Key (若相同可留空)">
+            <label style="font-size:12px; color:#888;">Bot ID</label>
+            <input type="text" class="m-input" id="gadBotId" value="d6rn10elvndavkuns100">
+
+            <button class="m-btn" onclick="saveSettings()">保存配置</button>
+        </div>
+    </div>
+
+    <!-- 登录/信息收集弹窗 -->
+    <div class="modal" id="loginModal" style="z-index: 2000;">
+        <div class="modal-content">
+            <h2 style="margin-bottom:20px; color:#333; text-align: center;">欢迎来到心灵驿站</h2>
+            <p style="color:#666; font-size:14px; text-align:center; margin-bottom:20px;">请填写您的基本信息以开始对话</p>
+            
+            <label style="font-size:12px; color:#888;">学号 (Student ID)</label>
+            <input type="text" class="m-input" id="studentId" placeholder="例如: 2023001">
+            
+            <label style="font-size:12px; color:#888;">姓名 (Name)</label>
+            <input type="text" class="m-input" id="studentName" placeholder="例如: 小明">
+            
+            <button class="m-btn" onclick="saveLoginInfo()">开启心灵之旅</button>
+        </div>
+    </div>
+
+    <!-- 移动端悬浮导航球 -->
+    <div id="mobile-nav-container">
+        <!-- 展开的菜单 -->
+        <div class="float-menu" id="floatMenu">
+            <div class="float-item" onclick="handleMobileNav('chat')">
+                <i class="fa-regular fa-comments"></i> 暖心伙伴
+            </div>
+            <div class="float-item" onclick="handleMobileNav('gad7')">
+                <i class="fa-solid fa-brain"></i> 焦虑检测
+            </div>
+            <div class="float-item" onclick="handleMobileNav('profile')">
+                <i class="fa-solid fa-chart-simple"></i> 我的状态
+            </div>
+            <div class="float-item" onclick="handleMobileNav('meditation')">
+                <i class="fa-solid fa-leaf"></i> 白噪音空间
+            </div>
+            <div class="float-item" onclick="toggleDarkMode(); toggleFloatMenu()">
+                <i class="fa-solid fa-moon"></i> 夜间模式
+            </div>
+        </div>
+        <!-- 悬浮球 -->
+        <div class="float-ball" onclick="toggleFloatMenu()">
+            🦁
+        </div>
+    </div>
+
+    <script>
+        // --- 全局配置 ---
+        const CFG = {
+            // 使用本地代理地址，解决 CORS 问题
+            URL: '/api/chat',
+            KEY: localStorage.getItem('school_key_v2') || 'd5nfpqelvndavkun6da0',
+            BOT: localStorage.getItem('school_bot_v2') || 'd4hd19coj60m6gidvts0',
+            // GAD-7 配置
+            GAD_KEY: localStorage.getItem('school_gad_key') || 'd6sh0tmlvnd6dji3g87g',
+            GAD_BOT: localStorage.getItem('school_gad_bot') || 'd6rn10elvndavkuns100',
+            
+            USER: localStorage.getItem('school_student_id') || ('student_' + Date.now()),
+            NAME: localStorage.getItem('school_student_name') || '同学'
+        };
+
+        const UI = {
+            views: {
+                chat: document.getElementById('view-chat'),
+                gad7: document.getElementById('view-gad7'),
+                profile: document.getElementById('view-profile'),
+                meditation: document.getElementById('view-meditation')
+            },
+            navs: document.querySelectorAll('.nav-btn'),
+            chatBox: document.getElementById('chatBox'),
+            gadChatBox: document.getElementById('gadChatBox'),
+            input: document.getElementById('userInput'),
+            gadInput: document.getElementById('gadUserInput'),
+            micBtn: document.getElementById('micBtn'),
+            micStatus: document.getElementById('micStatus'),
+            gadMicBtn: document.getElementById('gadMicBtn'),
+            gadMicStatus: document.getElementById('gadMicStatus'),
+            modal: document.getElementById('settingsModal'),
+            loginModal: document.getElementById('loginModal'),
+            activeView: 'chat'
+        };
+
+        // --- 0. 登录/信息收集逻辑 ---
+        function checkLogin() {
+            const sid = localStorage.getItem('school_student_id');
+            const sname = localStorage.getItem('school_student_name');
+            
+            // 每次打开都显示登录弹窗，并自动填充上次信息
+            UI.loginModal.style.display = 'flex';
+            
+            if (sid) document.getElementById('studentId').value = sid;
+            if (sname) document.getElementById('studentName').value = sname;
+        }
+
+        // --- 白噪音空间逻辑 ---
+        const SOUNDS = [
+            { id: 'rain', name: '窗外雨声', icon: 'fa-cloud-showers-heavy', desc: '专注 / 助眠', audio: './focus-sounds-master/static/light-rain.wav' },
+            { id: 'forest', name: '森林鸟鸣', icon: 'fa-tree', desc: '放松 / 晨间', audio: './focus-sounds-master/static/sunny.wav' },
+            { id: 'cafe', name: '午后咖啡', icon: 'fa-mug-hot', desc: '氛围 / 工作', audio: './focus-sounds-master/static/cafe.wav' },
+            { id: 'wind', name: '呼呼风声', icon: 'fa-wind', desc: '自然 / 宁静', audio: './focus-sounds-master/static/wind.wav' },
+            { id: 'night', name: '夏夜虫鸣', icon: 'fa-moon', desc: '深度 / 入眠', audio: './focus-sounds-master/static/night.wav' },
+            { id: 'piano', name: '治愈钢琴', icon: 'fa-music', desc: '舒缓 / 冥想', audio: './focus-sounds-master/static/piano.mp3' }
+        ];
+
+        function initSoundGrid() {
+            const grid = document.getElementById('soundGrid');
+            if(!grid) return;
+            grid.innerHTML = '';
+
+            SOUNDS.forEach(sound => {
+                const card = document.createElement('div');
+                card.className = 'sound-card';
+                card.id = `card-${sound.id}`;
+                card.onclick = (e) => {
+                    if(e.target.tagName === 'INPUT') return;
+                    toggleAudio(sound.id);
+                };
+
+                card.innerHTML = `
+                    <div class="sound-icon-wrapper">
+                        <i class="fa-solid ${sound.icon}"></i>
+                    </div>
+                    <div class="sound-info">
+                        <h4>${sound.name}</h4>
+                        <span>${sound.desc}</span>
+                    </div>
+                    <div class="sound-volume">
+                        <input type="range" class="volume-slider" min="0" max="100" value="50" 
+                            oninput="adjustVolume('${sound.id}', this.value)">
+                    </div>
+                    <audio id="audio-${sound.id}" src="${sound.audio}" loop></audio>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleAudio(id) {
+            const audio = document.getElementById(`audio-${id}`);
+            const card = document.getElementById(`card-${id}`);
+            if(!audio || !card) return;
+
+            if(audio.paused) {
+                audio.play().catch(e => console.warn("Audio play blocked by browser:", e));
+                card.classList.add('active');
+            } else {
+                audio.pause();
+                card.classList.remove('active');
+            }
+        }
+
+        function adjustVolume(id, val) {
+            const audio = document.getElementById(`audio-${id}`);
+            if(audio) audio.volume = val / 100;
+        }
+
+        function saveLoginInfo() {
+            const sidInput = document.getElementById('studentId');
+            const snameInput = document.getElementById('studentName');
+            
+            const sid = sidInput.value.trim();
+            const sname = snameInput.value.trim();
+            
+            if (!sid || !sname) {
+                alert("请填写完整的学号和姓名");
+                return;
+            }
+            
+            localStorage.setItem('school_student_id', sid);
+            localStorage.setItem('school_student_name', sname);
+            
+            CFG.USER = sid;
+            CFG.NAME = sname;
+            
+            UI.loginModal.style.display = 'none';
+            updateWelcomeMsg(sname);
+            
+            // 发送用户信息给大模型 (静默模式)
+            sendMessage({
+                text: `我是${sname}，学号${sid}。请记住我的信息。`,
+                hidden: true,
+                silent: true
+            });
+
+            // GAD-7 也要初始化 (延迟发送避免冲突)
+            setTimeout(() => {
+                sendGadMessage({
+                    text: `我是${sname}，学号${sid}。请记住我的信息。`,
+                    hidden: true,
+                    silent: true
+                });
+            }, 1000);
+        }
+        
+        function updateWelcomeMsg(name) {
+            const welcomeTitles = document.querySelectorAll('.welcome-text h1');
+            welcomeTitles.forEach(title => {
+                if(title) title.innerText = `Hi, ${name}`;
+            });
+        }
+
+        // 初始化检查
+        window.addEventListener('DOMContentLoaded', () => {
+            checkLogin();
+            initSoundGrid();
+        });
+
+        // --- 1. 模型切换系统 ---
+        const MODELS = {
+            happy: './original.glb',
+            sleep: './sleep.glb',
+            study: './bachelor.glb',
+            sport: './sport.glb',
+            shy:   './shy.glb',
+            no:    './no.glb',
+            thumbsup: './thumbsup.glb'
+        };
+        let currentMood = 'happy';
+
+        function changeModel(mood) {
+            const viewers = [
+                document.getElementById('lion-viewer'),
+                document.getElementById('gad-lion-viewer')
+            ];
+            const btns = document.querySelectorAll('.status-btn');
+
+            if (MODELS[mood] && currentMood !== mood) {
+                viewers.forEach(v => { if(v) v.src = MODELS[mood]; });
+                currentMood = mood;
+                
+                btns.forEach(btn => {
+                    const text = btn.innerText;
+                    const isActive = (mood === 'happy' && text.includes('开心')) ||
+                                     (mood === 'thumbsup' && text.includes('点赞')) ||
+                                     (mood === 'sport' && text.includes('运动')) ||
+                                     (mood === 'study' && text.includes('学习')) ||
+                                     (mood === 'sleep' && text.includes('休息')) ||
+                                     (mood === 'shy'   && text.includes('害羞')) ||
+                                     (mood === 'no'    && text.includes('拒绝'));
+                    if(isActive) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                });
+            }
+        }
+
+        function analyzeSentimentAndSwitch(text) {
+            // 关键词检测变身
+            if (text.match(/不|拒绝|讨厌|烦|no|不行|不要|停止|达咩/i)) changeModel('no');
+            else if (text.match(/赞|棒|厉害|加油|牛|好样|强|同意|支持|yes|good/i)) changeModel('thumbsup');
+            else if (text.match(/害羞|尴尬|社死|不好意思|脸红|丢人|哎呀/)) changeModel('shy');
+            else if (text.match(/累|困|睡|晚安|休息|疲惫/)) changeModel('sleep');
+            else if (text.match(/运动|跑|健身|球|减肥|锻炼/)) changeModel('sport');
+            else if (text.match(/学|考|作业|书|课|成绩|压力/)) changeModel('study');
+            else if (text.match(/开心|棒|好|笑|哈哈|谢谢|赞/)) changeModel('happy');
+        }
+
+        // --- 2. 语音输入 (Web Speech API) ---
+        let recognition = null;
+        let isListening = false;
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'zh-CN';
+            recognition.continuous = false;
+            recognition.interimResults = true;
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                if (UI.activeView === 'gad7') {
+                    UI.gadInput.value = transcript;
+                } else {
+                    UI.input.value = transcript;
+                }
+            };
+            recognition.onend = () => { stopListeningUI(); };
+            recognition.onerror = () => { stopListeningUI(); 
+                const targetInput = (UI.activeView === 'gad7') ? UI.gadInput : UI.input;
+                targetInput.placeholder = "识别出错"; 
+            };
+        } else {
+            if(UI.micBtn) UI.micBtn.style.display = 'none';
+            if(UI.gadMicBtn) UI.gadMicBtn.style.display = 'none';
+        }
+
+        function toggleVoice() {
+            if (!recognition) return alert("当前浏览器不支持语音");
+            if (isListening) recognition.stop();
+            else { recognition.start(); startListeningUI(); }
+        }
+        function startListeningUI() { 
+            isListening = true; 
+            const micBtn = (UI.activeView === 'gad7') ? UI.gadMicBtn : UI.micBtn;
+            const micStatus = (UI.activeView === 'gad7') ? UI.gadMicStatus : UI.micStatus;
+            const targetInput = (UI.activeView === 'gad7') ? UI.gadInput : UI.input;
+            
+            if(micBtn) micBtn.classList.add('listening'); 
+            if(micStatus) micStatus.style.display = 'block'; 
+            if(targetInput) targetInput.placeholder = "请说话..."; 
+        }
+        function stopListeningUI() { 
+            isListening = false; 
+            const micBtn = (UI.activeView === 'gad7') ? UI.gadMicBtn : UI.micBtn;
+            const micStatus = (UI.activeView === 'gad7') ? UI.gadMicStatus : UI.micStatus;
+            const targetInput = (UI.activeView === 'gad7') ? UI.gadInput : UI.input;
+            
+            if(micBtn) micBtn.classList.remove('listening'); 
+            if(micStatus) micStatus.style.display = 'none'; 
+            if(targetInput) targetInput.placeholder = (UI.activeView === 'gad7') ? "请回复助手的提问..." : "写下你的想法..."; 
+        }
+
+        // --- 3. 视图切换 & 图表初始化 ---
+        let radarChartInstance = null;
+        let lineChartInstance = null;
+        let breathTimers = []; // 存储所有冥想定时器ID
+
+        function switchView(name, btn) {
+            Object.values(UI.views).forEach(el => el.classList.remove('active'));
+            UI.navs.forEach(n => n.classList.remove('active'));
+            UI.views[name].classList.add('active');
+            btn.classList.add('active');
+            UI.activeView = name;
+
+            // 切换视图时彻底清除冥想定时器
+            stopBreathLoop();
+
+            if(name === 'profile') initChart();
+            if(name === 'meditation') startBreathLoop();
+            
+            // GAD-7 首次进入时如果没有消息，可以发一个开场白
+            if(name === 'gad7') {
+                const gadBox = document.getElementById('gadChatBox');
+                if (gadBox && gadBox.children.length === 0) {
+                    appendGadMsg('agent', '最近生活节奏挺快的，想关心下你这段时间的心情状态怎么样？如果有什么想吐槽的、或者觉得心里有点堵的时候，随时可以找我聊聊，我一直都在。');
+                }
+            }
+        }
+
+        function initChart() {
+            if (radarChartInstance) return;
+            // 雷达图
+            const ctxRadar = document.getElementById('radarChart');
+            radarChartInstance = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['情绪', '压力', '睡眠', '人际', '学业', '运动'],
+                    datasets: [{
+                        label: '当前状态',
+                        data: [85, 40, 60, 75, 50, 65],
+                        backgroundColor: 'rgba(78, 205, 196, 0.3)',
+                        borderColor: '#4ECDC4',
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#4ECDC4'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { r: { ticks: { display: false, max: 100 }, suggestedMin: 0, suggestedMax: 100 } }
+                }
+            });
+
+            // 折线图
+            const ctxLine = document.getElementById('lineChart');
+            lineChartInstance = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                    datasets: [{
+                        label: '心情走势',
+                        data: [60, 65, 55, 80, 85, 90, 85],
+                        borderColor: '#FF6B6B',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4, fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { display: false } }, y: { display: false, min: 0, max: 100 } }
+                }
+            });
+        }
+
+        // --- 4. 聊天 & API ---
+        /**
+         * 发送消息给大模型
+         * @param {string|Object} arg - 文本内容 或 配置对象 {text, hidden, silent}
+         * @param {boolean} hidden - (旧参数兼容) 是否隐藏用户消息
+         */
+        async function sendMessage(arg = null, hidden = false) {
+            let text = '';
+            let isHidden = hidden;
+            let isSilent = false;
+
+            if (typeof arg === 'object' && arg !== null) {
+                text = arg.text || '';
+                isHidden = arg.hidden || false;
+                isSilent = arg.silent || false;
+            } else {
+                text = arg;
+            }
+
+            if (text === null) {
+                text = UI.input.value.trim();
+            }
+            
+            if(!text) return;
+            
+            // 变身判断
+            analyzeSentimentAndSwitch(text);
+            
+            if(!CFG.KEY) { openSettings(); return; }
+
+            if (!isHidden) {
+                appendMsg('user', text);
+            }
+            
+            // 清空输入框
+            if (text === UI.input.value.trim()) {
+                UI.input.value = '';
+                UI.input.style.height = '44px'; 
+            }
+
+            // 如果是静默模式，不显示气泡，但仍在后台处理流
+            let aiBubble = null;
+            if (!isSilent) {
+                aiBubble = appendMsg('agent', '<i class="fa-solid fa-ellipsis fa-fade"></i>');
+            }
+
+            try {
+                const res = await fetch(CFG.URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${CFG.KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bot_id: CFG.BOT, user_id: CFG.USER, user_name: CFG.NAME,
+                        stream: true, auto_save_history: true,
+                        additional_messages: [{ role:'user', content:text, content_type:'text' }]
+                    })
+                });
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let raw = '';
+
+                while(true) {
+                    const { done, value } = await reader.read();
+                    if(done) break;
+                    
+                    // 如果是静默模式，虽然接收流但不显示
+                    if (isSilent) continue;
+
+                    const chunk = decoder.decode(value, {stream:true});
+                    const lines = chunk.split('\n');
+                    for(const line of lines) {
+                        if(line.startsWith('data:')) {
+                            const json = line.slice(5).trim();
+                            if(json === '[DONE]') {
+                                reader.cancel();
+                                break;
+                            }
+                            try {
+                                const data = JSON.parse(json);
+                                const content = data.content || (data.data && data.data.content);
+                                if(content) {
+                                    raw += content;
+                                    if (aiBubble) {
+                                        aiBubble.innerHTML = marked.parse(raw);
+                                        UI.chatBox.scrollTop = UI.chatBox.scrollHeight;
+                                    }
+                                }
+                            } catch(e){}
+                        }
+                    }
+                }
+            } catch(e) { 
+                if (aiBubble) aiBubble.innerHTML = "网络异常..."; 
+                console.error("Chat Error:", e);
+            }
+        }
+
+        // --- GAD-7 聊天逻辑 (复制 sendMessage 修改参数) ---
+        async function sendGadMessage(arg = null, hidden = false) {
+            let text = '';
+            let isHidden = hidden;
+            let isSilent = false;
+
+            if (typeof arg === 'object' && arg !== null) {
+                text = arg.text || '';
+                isHidden = arg.hidden || false;
+                isSilent = arg.silent || false;
+            } else {
+                text = arg;
+            }
+
+            if (text === null) {
+                text = UI.gadInput.value.trim();
+            }
+            
+            if(!text) return;
+            
+            // GAD-7 不需要变身分析，或者也可以加上
+            
+            const targetKey = CFG.GAD_KEY; 
+            const targetBot = CFG.GAD_BOT; 
+
+            if(!targetKey) { openSettings(); return; }
+
+            if (!isHidden) {
+                appendGadMsg('user', text);
+            }
+            
+            // 清空输入框
+            if (UI.gadInput && text === UI.gadInput.value.trim()) {
+                UI.gadInput.value = '';
+                UI.gadInput.style.height = '44px'; 
+            }
+
+            let aiBubble = null;
+            if (!isSilent) {
+                aiBubble = appendGadMsg('agent', '<i class="fa-solid fa-ellipsis fa-fade"></i>');
+            }
+
+            try {
+                const res = await fetch(CFG.URL, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${targetKey}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        bot_id: targetBot, user_id: CFG.USER, user_name: CFG.NAME,
+                        stream: true, auto_save_history: true,
+                        additional_messages: [{ role:'user', content:text, content_type:'text' }]
+                    })
+                });
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let raw = '';
+
+                while(true) {
+                    const { done, value } = await reader.read();
+                    if(done) break;
+                    
+                    if (isSilent) continue;
+
+                    const chunk = decoder.decode(value, {stream:true});
+                    const lines = chunk.split('\n');
+                    for(const line of lines) {
+                        if(line.startsWith('data:')) {
+                            const json = line.slice(5).trim();
+                            if(json === '[DONE]') {
+                                reader.cancel();
+                                break;
+                            }
+                            try {
+                                const data = JSON.parse(json);
+                                const content = data.content || (data.data && data.data.content);
+                                if(content) {
+                                    raw += content;
+                                    if (aiBubble) {
+                                        aiBubble.innerHTML = marked.parse(raw);
+                                        UI.gadChatBox.scrollTop = UI.gadChatBox.scrollHeight;
+                                    }
+                                }
+                            } catch(e){}
+                        }
+                    }
+                }
+            } catch(e) { 
+                if (aiBubble) aiBubble.innerHTML = "网络异常..."; 
+                console.error("GAD Chat Error:", e);
+            }
+        }
+
+        function appendMsg(role, html) {
+            const div = document.createElement('div');
+            div.className = `msg-item ${role}`;
+            div.innerHTML = `<div class="bubble">${html}</div>`;
+            UI.chatBox.appendChild(div);
+            UI.chatBox.scrollTop = UI.chatBox.scrollHeight;
+            return div.querySelector('.bubble');
+        }
+
+        function appendGadMsg(role, html) {
+            const div = document.createElement('div');
+            div.className = `msg-item ${role}`;
+            div.innerHTML = `<div class="bubble">${html}</div>`;
+            if(UI.gadChatBox) {
+                UI.gadChatBox.appendChild(div);
+                UI.gadChatBox.scrollTop = UI.gadChatBox.scrollHeight;
+            }
+            return div.querySelector('.bubble');
+        }
+
+        function handleEnter(e) { 
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+        function handleGadEnter(e) { 
+            if(e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendGadMessage();
+            }
+        }
+
+        // 监听输入框自动高度
+        UI.input.addEventListener('input', function() {
+            this.style.height = 'auto';
+            if(this.value === '') {
+                this.style.height = '44px';
+            } else {
+                this.style.height = (this.scrollHeight) + 'px';
+            }
+        });
+        
+        if(UI.gadInput) {
+            UI.gadInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                if(this.value === '') {
+                    this.style.height = '44px';
+                } else {
+                    this.style.height = (this.scrollHeight) + 'px';
+                }
+            });
+        }
+
+        // --- 5. 其他逻辑 ---
+        function startBreathLoop() {
+            stopBreathLoop(); // 确保先清除旧的
+            
+            const el = document.getElementById('breathText');
+            
+            const runCycle = () => {
+                // 1. 吸气 (0s)
+                el.innerText = "吸气";
+                
+                // 2. 保持 (3.5s)
+                breathTimers.push(setTimeout(() => {
+                    el.innerText = "保持";
+                }, 3500));
+                
+                // 3. 呼气 (4.5s)
+                breathTimers.push(setTimeout(() => {
+                    el.innerText = "呼气";
+                }, 4500));
+
+                // 4. 下一轮 (8s)
+                breathTimers.push(setTimeout(runCycle, 8000));
+            };
+            
+            runCycle();
+        }
+
+        function stopBreathLoop() {
+            breathTimers.forEach(id => clearTimeout(id));
+            breathTimers = [];
+        }
+
+        function toggleSound(el) {
+            el.style.transform = "scale(0.98)";
+            setTimeout(() => el.style.transform = "scale(1)", 100);
+        }
+        function openSettings() { 
+            UI.modal.style.display = 'flex'; 
+            document.getElementById('apiKey').value = CFG.KEY; 
+            document.getElementById('botId').value = CFG.BOT;
+            document.getElementById('gadApiKey').value = CFG.GAD_KEY;
+            document.getElementById('gadBotId').value = CFG.GAD_BOT;
+        }
+        function saveSettings() {
+            const k = document.getElementById('apiKey').value;
+            const b = document.getElementById('botId').value;
+            const gk = document.getElementById('gadApiKey').value;
+            const gb = document.getElementById('gadBotId').value;
+            
+            if(k) { localStorage.setItem('school_key_v2', k); CFG.KEY = k; }
+            if(b) { localStorage.setItem('school_bot_v2', b); CFG.BOT = b; }
+            if(gk) { localStorage.setItem('school_gad_key', gk); CFG.GAD_KEY = gk; }
+            if(gb) { localStorage.setItem('school_gad_bot', gb); CFG.GAD_BOT = gb; }
+            
+            UI.modal.style.display = 'none';
+        }
+        UI.modal.addEventListener('click', e => { if(e.target===UI.modal) UI.modal.style.display='none'; });
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            
+            // 更新PC端按钮图标
+            const pcBtn = document.getElementById('pcModeBtn');
+            if(pcBtn) {
+                pcBtn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+                pcBtn.title = isDark ? "日间模式" : "夜间模式";
+            }
+
+            // 更新悬浮菜单文字
+            const menuItems = document.querySelectorAll('.float-item');
+            menuItems.forEach(item => {
+                if(item.innerText.includes('夜间模式') || item.innerText.includes('日间模式')) {
+                    item.innerHTML = isDark ? 
+                        '<i class="fa-solid fa-sun"></i> 日间模式' : 
+                        '<i class="fa-solid fa-moon"></i> 夜间模式';
+                }
+            });
+
+            // 重新初始化图表以适配颜色（如果图表已存在）
+            if(radarChartInstance) {
+                radarChartInstance.destroy();
+                radarChartInstance = null;
+                initChart();
+            }
+        }
+
+        // --- 移动端悬浮导航逻辑 ---
+        function toggleFloatMenu() {
+            const menu = document.getElementById('floatMenu');
+            menu.classList.toggle('active');
+        }
+
+        function handleMobileNav(viewName) {
+            // 模拟点击 PC 端的导航按钮以复用 switchView 逻辑
+            // 找到对应的 nav-btn (虽然隐藏了但 DOM 还在，或者直接调用 switchView)
+            
+            // 为了简单，我们手动触发 UI 状态更新
+            // 1. 关闭菜单
+            toggleFloatMenu();
+
+            // 2. 调用 switchView
+            // 我们需要传递一个 dummy button 或者找到真实的 button
+            let targetBtn = null;
+            UI.navs.forEach(btn => {
+                if(viewName === 'chat' && btn.title === '聊天') targetBtn = btn;
+                if(viewName === 'gad7' && btn.title === '焦虑检测') targetBtn = btn;
+                if(viewName === 'profile' && btn.title === '状态') targetBtn = btn;
+                if(viewName === 'meditation' && btn.title === '放松') targetBtn = btn;
+            });
+            
+            if(targetBtn) switchView(viewName, targetBtn);
+        }
+
+        // 点击页面其他地方关闭悬浮菜单
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('mobile-nav-container');
+            const menu = document.getElementById('floatMenu');
+            if (!container.contains(e.target) && menu.classList.contains('active')) {
+                menu.classList.remove('active');
+            }
+        });
+
+        // 🔥 自动上色脚本 🔥
+        const viewer = document.querySelector("#lion-viewer");
+        
+        // --- 拖拽悬浮球逻辑 ---
+        const floatBall = document.querySelector('.float-ball');
+        const floatContainer = document.getElementById('mobile-nav-container');
+        
+        let isDragging = false;
+        let startX, startY, initialLeft, initialTop;
+        let hasMoved = false; // 用于区分点击和拖拽
+
+        floatBall.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            hasMoved = false;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            
+            // 获取当前计算后的位置
+            const rect = floatContainer.getBoundingClientRect();
+            // 注意：因为我们用的是bottom/right定位，这里为了拖拽方便，建议临时切换为 top/left 或 transform
+            // 简单起见，我们直接操作 transform
+        });
+
+        floatBall.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault(); // 防止页面滚动
+            
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            const diffX = currentX - startX;
+            const diffY = currentY - startY;
+
+            if (Math.abs(diffX) > 5 || Math.abs(diffY) > 5) {
+                hasMoved = true;
+            }
+            
+            // 更新位置：直接修改 container 的 left/top
+            // 为了更流畅，我们使用 transform translate
+            // 但因为 container 是 fixed bottom right，我们需要先获取当前偏移
+            
+            // 简单方案：直接修改 container 的 style.bottom 和 style.right
+            // 计算新的 right 和 bottom
+            // right = windowWidth - currentX - offset
+            // bottom = windowHeight - currentY - offset
+            
+            const newRight = window.innerWidth - currentX - 25; // 25是半径
+            const newBottom = window.innerHeight - currentY - 25;
+            
+            floatContainer.style.right = `${newRight}px`;
+            floatContainer.style.bottom = `${newBottom}px`;
+        });
+
+        floatBall.addEventListener('touchend', () => {
+            isDragging = false;
+            // 如果是拖拽结束，不触发点击事件
+            // 点击事件由 onclick 处理，但因为 touchmove preventDefault 可能影响 click
+            // 实际上 onclick 在移动端如果不 preventDefault 会触发
+            // 我们在 onclick 里判断 hasMoved
+        });
+
+        // 修改 toggleFloatMenu，如果是拖拽则不切换
+        const originalToggle = toggleFloatMenu;
+        toggleFloatMenu = function() {
+            if (!hasMoved) {
+                const menu = document.getElementById('floatMenu');
+                menu.classList.toggle('active');
+            }
+            hasMoved = false; // 重置
+        };
+        
+        // 修复：确保在访问 model.materials 前模型已完全加载
+        viewer.addEventListener("load", () => {
+            // 安全检查：如果模型或材质未就绪，则不执行
+            // 注意：model-viewer 3.x load 事件触发时 materials 应该已就绪，但为了稳健性添加延迟
+            if (!viewer.model || !viewer.model.materials) {
+                // 如果第一次检查失败，稍微等待后再试
+                setTimeout(() => {
+                    if (viewer.model && viewer.model.materials) {
+                        applyColors(viewer);
+                    }
+                }, 100);
+                return;
+            }
+            applyColors(viewer);
+        });
+
+        const gadViewer = document.getElementById('gad-lion-viewer');
+        if(gadViewer) {
+            gadViewer.addEventListener("load", () => {
+                if (!gadViewer.model || !gadViewer.model.materials) {
+                    setTimeout(() => {
+                        if (gadViewer.model && gadViewer.model.materials) {
+                            applyColors(gadViewer);
+                        }
+                    }, 100);
+                    return;
+                }
+                applyColors(gadViewer);
+            });
+        }
+
+        function applyColors(targetViewer) {
+            if (!targetViewer || !targetViewer.model || !targetViewer.model.materials) return;
+
+            try {
+                // 将颜色定义也移入函数内或作为参数传递，这里直接使用闭包或重新定义
+                const COLOR_BODY = [0.98, 0.95, 0.9, 1.0]; 
+                const COLOR_MANE = [1.0, 0.7, 0.4, 1.0];
+                const COLOR_NOSE = [0.3, 0.2, 0.15, 1.0];
+                const COLOR_EYE  = [0.2, 0.2, 0.2, 1.0];
+                const COLOR_PINK = [1.0, 0.8, 0.85, 1.0];
+                const COLOR_SIGN = [0.8, 0.2, 0.2, 1.0];
+                const COLOR_STICK= [0.6, 0.4, 0.2, 1.0];
+
+                console.group("Model Material Debug Info (" + targetViewer.id + ")"); // 开始分组日志
+                targetViewer.model.materials.forEach((material, index) => {
+                    const name = material.name.toLowerCase();
+                    console.log(`Material [${index}]: "${name}"`, material);
+
+                    // 1. 默认：身体颜色 (哑光) - 禁用无条件覆盖，避免 Draco 压缩后材质名丢失导致全白
+                    // material.pbrMetallicRoughness.setBaseColorFactor(COLOR_BODY);
+                    // material.pbrMetallicRoughness.setMetallicFactor(0.0);
+                    // material.pbrMetallicRoughness.setRoughnessFactor(0.9);
+
+                    // 2. 局部染色 (根据名称关键词匹配)
+                    // 注意：Draco 压缩可能导致名称丢失 (变成 material_0 等)，需要查看控制台日志确认
+                    if (name.includes('volume') || name.includes('体积')) {
+                        if(name.includes('.1') || name.includes('_1')) material.pbrMetallicRoughness.setBaseColorFactor(COLOR_MANE); // 鬃毛
+                        else material.pbrMetallicRoughness.setBaseColorFactor(COLOR_BODY); // 身体
+                    }
+                    else if (name.includes('tail') || name.includes('尾')) material.pbrMetallicRoughness.setBaseColorFactor(COLOR_MANE);
+                    else if (name.includes('mouth') || name.includes('嘴')) material.pbrMetallicRoughness.setBaseColorFactor(COLOR_NOSE);
+                    else if (name.includes('disc') || name.includes('圆盘') || name.includes('eye')) { // 增加 eye 关键词
+                        material.pbrMetallicRoughness.setBaseColorFactor(COLOR_EYE); // 眼睛
+                        material.pbrMetallicRoughness.setRoughnessFactor(0.3);
+                    }
+                    else if (name.includes('sign') || name.includes('牌')) material.pbrMetallicRoughness.setBaseColorFactor(COLOR_SIGN);
+                    else if (name.includes('stick') || name.includes('棍')) material.pbrMetallicRoughness.setBaseColorFactor(COLOR_STICK);
+                    else if (name.includes('heart') || name.includes('爱')) material.pbrMetallicRoughness.setBaseColorFactor(COLOR_PINK);
+                });
+                console.groupEnd();
+
+            } catch (e) {
+                console.error("Error applying materials:", e);
+            }
+        }
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc
+*.log
+server/conversation_map.json
+server/workflow_audit/
+server/workflow_audit_test/
+archive/test-evidence/
+node_modules/
+dist/
+.npm-cache/

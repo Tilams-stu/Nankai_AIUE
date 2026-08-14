@@ -1,0 +1,17 @@
+{
+  "name": "Mental LLM Campus Wellbeing Assistant",
+  "short_name": "Mental LLM",
+  "description": "Campus wellbeing conversation prototype for non-diagnostic support and background reporting.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0f4ff",
+  "theme_color": "#7c5cfc",
+  "icons": [
+    {
+      "src": "/images/tubiao.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

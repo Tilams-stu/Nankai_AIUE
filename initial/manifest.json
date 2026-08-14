@@ -1,0 +1,17 @@
+{
+  "name": "校园心灵驿站",
+  "short_name": "心灵驿站",
+  "description": "校园心理健康助手 - 聊天、焦虑检测、放松冥想",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0f4ff",
+  "theme_color": "#7c5cfc",
+  "icons": [
+    {
+      "src": "tubiao.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

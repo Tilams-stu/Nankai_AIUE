@@ -1,0 +1,19 @@
+# Workspace temporary and generated material
+tmp/
+**/tmp/
+**/__pycache__/
+*.pyc
+**/node_modules/
+**/dist/
+**/.npm-cache/
+**/.cache/
+
+# Local secrets and runtime audit output
+**/.env
+**/.env.*
+!**/.env.example
+**/server/workflow_audit/
+**/server/workflow_audit_test/
+
+# Generated workspace snapshots
+archive/temporary-*/

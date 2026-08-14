@@ -1,0 +1,105 @@
+| M01 | 知情说明与会话控制 | 说明用途、边界、数据使用、可跳过/暂停/退出 | P0 |
+| M02 | 主诉与目标识别 | 开放式了解困扰、求助目标及优先问题 | P0 |
+| M03 | 对话状态管理 | 记录已问/已答/待确认字段，避免重复和跳跃 | P0 |
+| M04 | 动态追问 | 补足事件、情境、持续时间、频率、强度和影响 | P0 |
+| M05 | 基础与校园场景采集 | 学习、宿舍、人际、家庭、就业、生活状态等 | P1 |
+| M06 | 全程风险监测 | 每轮检查自伤、自杀、伤人、精神病性和躁狂线索 | P0 |
+| M07 | 危机分流与处置 | 安全追问、风险分层、资源推送、关注状态记录 | P0 |
+| M10 | 报告生成 | 生成学生端温和反馈和后台结构化报告 | P0 |
+| M11 | 自动报告上传与审计 | 飞书写入、上传状态、版本记录、风险依据留痕 | P0 |
+| M12 | 资源与知识库 | 管理危机白名单、服务说明、量表及心理教育内容 | P0 |
+
+
+
+| G1 | 自然收集关键信息 | 用户无需连续填写长问卷，系统仍能形成结构化字段 |
+| G2 | 风险优先 | 任意阶段出现风险线索，都能中断普通流程并进入安全评估 |
+| G3 | 降低误导 | 不输出诊断、不做治疗承诺，问题保持中性且允许跳过 |
+| G4 | 支持后台自动上传 | 报告保留原始依据、信息缺口、风险规则、资源提示和上传状态 |
+| G5 | 可实施与可测试 | 功能可映射到 Coze 节点、规则库、知识库和输出字段 |
+
+
+D0 会话初始化
+-> D1 边界与知情说明
+-> D2 开放式主诉
+-> D3 主诉具体化
+-> D4 基础与校园情境
+-> D5 情绪/认知/行为/身体状态
+-> D6 功能影响
+-> D7 固定安全确认
+-> D8 按需量表或补充评估
+-> D9 支持系统与既往求助
+-> D10 总结确认
+-> D11 反馈与下一步建议
+-> D12 报告生成和自动报告上传
+
+会话状态数据
+session:
+  id: 匿名会话编号
+  stage: D0-D12 或 C1-C5
+  consent_status: accepted | declined | partial | unknown
+  user_control: continue | pause | skip | exit | correct
+  started_at: 时间
+  agent_version: 提示词与规则版本
+
+assessment:
+  presenting_concern: 当前困扰
+  help_goal: 求助目标
+  duration: 持续时间
+  frequency: 出现频率
+  intensity: 主观强度
+  recent_change: 近期变化
+  emotional_state: 情绪表现
+  cognition: 认知表现
+  behavior: 行为表现
+  sleep_appetite_body: 睡眠、饮食与身体状态
+  functioning: 学习、人际、工作与生活影响
+  campus_context: 校园和生活情境
+  history: 既往咨询、就医、用药及相关经历
+  support: 可信任人员和可用支持
+
+safety:
+  signal_status: none | ambiguous | present
+  ideation: unknown | denied | passive | active
+  plan: unknown | no | yes
+  means_access: unknown | no | yes
+  timing: unknown | none | future_unspecified | near_term | now
+  behavior_or_injury: unknown | no | yes
+  prior_attempt: unknown | no | yes
+  harm_to_others: unknown | no | yes
+  severe_mental_state_signal: unknown | no | yes
+  alone_now: unknown | no | yes
+  trusted_person_available: unknown | no | yes
+  can_stay_safe: unknown | yes | no
+  workflow_label: R0 | R1 | R2 | R3 | RX
+
+report:
+  completeness: complete | partial | insufficient
+  evidence_links: 对话片段引用
+  review_status: draft | pending | confirmed | returned
+```
+
+字段未采集时必须为 `unknown/未询问`，不能默认记为 `no/否`。
+
+
+
+
+| R0 未见明确即时风险 | 当前材料未发现明确即时危险 | 明确否认当前风险，且无其他重大线索 | 继续评估，保留不确定性 |
+| R1 需要关注 | 有消极想法、明显功能下降、既往风险或其他需尽快专业评估的因素，但当前未见正在发生的危险 | 被动死亡愿望、既往自伤、支持不足等 | 完成必要澄清，建议尽快专业支持，自动报告上传 |
+| R2 高度关注 | 多项风险因素叠加、主动意念、方法可及、近期计划、无法稳定确认安全，或严重精神状态线索 | 有计划但时间不明、独处且无支持、幻听命令等 | 立即提示联系现实支持、学校心理健康中心或紧急服务，并记录需关注状态 |
+| R3 紧急 | 伤害正在发生、已经受伤/过量服药、计划即将实施或用户明确无法保证当前安全 | 当前实施、近期明确时间、严重身体危险 | 建议立即联系当地紧急服务/医疗机构、现场可信任人员或学校心理健康中心资源 |
+| RX 信息不足 | 关键安全问题拒答、表达冲突、技术中断或模型无法可靠判断 | 风险表达后失联、主体/时间不清 | 保守处理，推送安全信息并自动报告上传 |
+
+
+| 规则编号 | 触发条件 | 默认动作 |
+| CR-001 | 正在伤害/已受伤/疑似过量服药 | R3，紧急医疗路径 |
+| CR-002 | 近期明确计划或无法保证安全 | R3，提示紧急服务/校内资源并记录需关注状态 |
+| CR-003 | 主动意念 + 计划/工具可及 | 至少 R2，立即现实支持 |
+| CR-004 | 被动死亡愿望 | C2 澄清，至少自动报告上传 |
+| CR-005 | 伤害他人迫近风险 | R2/R3，按正式制度升级 |
+| CR-006 | 命令性幻听或现实判断显著受损 | R2/R3，医疗评估路径 |
+| CR-007 | 明显躁狂/冲动危险组合线索 | R2，精神科评估路径 |
+| CR-008 | 量表风险条目阳性 | 中断量表，进入 C2 |
+| CR-009 | 风险表达后拒答/退出 | RX，安全提醒与自动报告上传 |
+| CR-010 | 资源库失效 | 阻止自动资源生成，技术告警 |
+| CR-011 | 用户改口否认 | 保留历史并重新确认，不自动降级 |
+| CR-012 | 规则与模型冲突 | 采用较保守路由并自动报告上传 |

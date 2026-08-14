@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Model Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层和白噪音运行时外置之后，抽取第二个低耦合交互切片：模型心情切换。将模型资源映射、当前心情状态、关键词触发变身和状态按钮激活逻辑迁移到 `src/app/modelRuntime.js`，`index.html` 只保留 `changeModel` 和 `analyzeSentimentAndSwitch` 两个兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/modelRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_model_runtime_check.md`。
+- **技术亮点与潜在风险**：模型切换运行时通过 `window.MentalModelRuntime` 暴露能力，保留原有按钮 `onclick="changeModel(...)"` 和聊天回调 `analyzeSentimentAndSwitch(text)` 的调用入口。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认英文关键词可触发 `thumbsup`、Unicode 中文输入可触发 `study`，并能同步更新两个 `model-viewer` 的 `src` 与按钮 `active` 状态。风险是多数 legacy JS 仍集中在 `index.html`，本次没有处理聊天服务、SSE 解析或视图导航；浏览器执行工具在本轮不可用，因此本切片采用静态、构建、烟测和最小 DOM 运行时验证组合。

@@ -1,0 +1,5 @@
+### [2026-07-25] Goal 7 Gateway Snapshot Development Log
+
+- **任务概述**：继续推进 `Mental-LLM_JxFdj` 的 Goal 7，把 typed session snapshot 真正接到 workflow gateway 的提交边界上。实现了 `session_snapshot` 的 submission package contract，并让 upload runtime 在提交流程前导出当前 typed 状态交给本地受控网关。
+- **代码变更路径**：涉及 `Mental-LLM_JxFdj/src/contracts/workflowContract.ts`、`Mental-LLM_JxFdj/src/services/workflowService.ts`、`Mental-LLM_JxFdj/src/app/uploadRuntime.js`、`Mental-LLM_JxFdj/server/proxy_server.py`、`Mental-LLM_JxFdj/README.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/docs/agent_integration.md`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`testing/2026-07-25_goal7_gateway_snapshot_check.md`、`progress/2026-07-25_goal7_gateway_snapshot_log.md`。
+- **技术亮点与潜在风险**：这一轮把“typed 状态 -> snapshot -> gateway”链路真正连上了，但依然遵守当前隐私边界：浏览器不做敏感持久化，也不直连 Feishu。`typecheck`、`smoke` 和 `WORKFLOW_GATEWAY_SNAPSHOT_PASS` 已留证。后续真正接入后端时，仍需明确 snapshot 的保留、脱敏、权限和审计策略。

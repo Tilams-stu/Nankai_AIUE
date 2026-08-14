@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Form Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层、白噪音运行时、模型心情切换运行时、导航运行时、冥想运行时和状态页图表运行时外置之后，抽取第六个低耦合交互切片：表单与输入框辅助逻辑。将回车发送门控、输入框自适应高度、设置弹窗打开/关闭行为和 Bot ID 持久化辅助逻辑迁移到 `src/app/formRuntime.js`，`index.html` 只保留 `handleEnter`、`handleGadEnter`、`openSettings`、`saveSettings` 兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/formRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_form_runtime_check.md`。
+- **技术亮点与潜在风险**：表单运行时通过 `window.MentalFormRuntime` 暴露能力，`sendMessage` 和 `sendGadMessage` 实现本身没有改动，只是把 Enter 键门控和文本域自适应从页面主脚本里抽离。设置弹窗的打开/清空、背景关闭和 Bot ID 写入 `localStorage` 也集中到运行时中。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认回车提交、输入框高度更新、弹窗开关和 Bot ID 持久化都可工作。后续 Goal 4 仍需继续拆语音输入、消息渲染、聊天发送、GAD-7 发送、SSE 解析、移动端拖拽和模型材质上色逻辑。

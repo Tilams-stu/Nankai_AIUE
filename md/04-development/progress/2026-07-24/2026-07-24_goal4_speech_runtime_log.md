@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Speech Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层、白噪音运行时、模型心情切换运行时、导航运行时、冥想运行时、状态页图表运行时、表单运行时和消息运行时外置之后，抽取第八个低耦合交互切片：浏览器语音输入。将语音识别初始化、转写结果写入当前输入框、麦克风监听态 UI、占位文案切换和不支持语音时的回退逻辑迁移到 `src/app/speechRuntime.js`，`index.html` 只保留 `toggleVoice`、`startListeningUI`、`stopListeningUI` 兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/speechRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_speech_runtime_check.md`。
+- **技术亮点与潜在风险**：语音运行时通过 `window.MentalSpeechRuntime` 暴露能力，页面主脚本不再直接持有 `recognition` 和 `isListening` 状态。转写结果仍然只写入当前活跃的文本框，不触发自动发送；错误分支只处理占位文案和聆听 UI，不改变聊天服务逻辑。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认识别器初始化、监听态按钮/状态栏切换、转写写入、错误占位文案和不支持浏览器的回退行为可工作。后续 Goal 4 仍需继续拆聊天发送/GAD-7 发送、SSE 解析、移动端拖拽和模型材质上色逻辑。

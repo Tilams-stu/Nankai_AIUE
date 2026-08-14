@@ -1,0 +1,137 @@
+﻿{
+    "generated_at":  "2026-07-24T00:00:00+08:00",
+    "project_root":  "D:/Desktop/Software/AIUE/Mental-LLM_JxFdj",
+    "note":  "Baseline manifest only. Secret-bearing source files are not copied into legacy artifacts.",
+    "files":  [
+                  {
+                      "path":  ".htaccess",
+                      "bytes":  63,
+                      "sha256":  "e2720e4acf194ee393df83e82a9ff5bd3eb3916bf97dd824d6dd2c49b65e8056"
+                  },
+                  {
+                      "path":  "bachelor.glb",
+                      "bytes":  4527688,
+                      "sha256":  "3dfdd5921c8f49966a21b69cf80ad8da711b5213e41c42d4d2a136d9a440044f"
+                  },
+                  {
+                      "path":  "check_cdn.py",
+                      "bytes":  634,
+                      "sha256":  "169f374aa43bf3a7a1c557fed121bca60ee45adaea9070409975217ac997e6cd"
+                  },
+                  {
+                      "path":  "index.html",
+                      "bytes":  76091,
+                      "sha256":  "efac38836403ec0fc0b7c3f97a4f7120f68d72fb45f72dff56ce187e62c69039"
+                  },
+                  {
+                      "path":  "manifest.json",
+                      "bytes":  409,
+                      "sha256":  "25e1e31bbbb173391fc8b3100bae1977f4e70d1d315cec946ecad3c27dae2860"
+                  },
+                  {
+                      "path":  "no.glb",
+                      "bytes":  4085356,
+                      "sha256":  "0e7c852c7f5944214dd6a08ced4cb94bba401664c00debf7871004f4d1c05924"
+                  },
+                  {
+                      "path":  "original.glb",
+                      "bytes":  4783632,
+                      "sha256":  "f6b2df1ca60fbd65dfa7a650df777dcc15140c3b29f228ebea758c67427e062a"
+                  },
+                  {
+                      "path":  "proxy_server.py",
+                      "bytes":  8588,
+                      "sha256":  "abb68cf4f53b6bc4bf5fc5fe6d556b57c3b82be5cb533c848e43894871b3f563"
+                  },
+                  {
+                      "path":  "sdk.js",
+                      "bytes":  5661,
+                      "sha256":  "0913dcc97a5755e16f50f376f279c3f8d6c964adc10a4a403f51350867e5bd3a"
+                  },
+                  {
+                      "path":  "shy.glb",
+                      "bytes":  5318640,
+                      "sha256":  "81f60d12ab1438ef8e68675a26547f0fc282b482efbfe5f3b368ac806e341d24"
+                  },
+                  {
+                      "path":  "sleep.glb",
+                      "bytes":  4865824,
+                      "sha256":  "910917d23d8913be7947cb08af2ddfff41a27fcff3e49b9e94357bbf4951203d"
+                  },
+                  {
+                      "path":  "sport.glb",
+                      "bytes":  7750116,
+                      "sha256":  "b81877cd66a895570320aa2147dfe54182b22f12d982cae4fa58ecdd75944014"
+                  },
+                  {
+                      "path":  "test_api.py",
+                      "bytes":  850,
+                      "sha256":  "af160c4595f9b1ed13d1e97fe1fdcecd38fa8c56f9f5173334dac682e0b469aa"
+                  },
+                  {
+                      "path":  "thumbsup.glb",
+                      "bytes":  4462988,
+                      "sha256":  "2156ff4c8f0f66ef7da95b7b5fd49b8e507372e25d9bcbcea0e87ed9b882e87c"
+                  },
+                  {
+                      "path":  "tubiao.png",
+                      "bytes":  327810,
+                      "sha256":  "cd5a7f630a6f07de007507e0a7062bd82c97d4faec7f446fb2a6dc03f30900bf"
+                  },
+                  {
+                      "path":  "libs/chart.js",
+                      "bytes":  205125,
+                      "sha256":  "74401d738dd3e03ee5dfb3b6841210fe2c4ead8a960c4011ca4ba0b78a9fd8f3"
+                  },
+                  {
+                      "path":  "libs/fontawesome.zip",
+                      "bytes":  610131,
+                      "sha256":  "7e1cd3a785fac80c3b86d1650a8b22d87e77e3b02403ce3082ad3cb1379dc718"
+                  },
+                  {
+                      "path":  "libs/marked.min.js",
+                      "bytes":  35159,
+                      "sha256":  "eb1f6b19880bc80a5fe34c6a61885173b60edda455ba7a33c98714db17d39f99"
+                  },
+                  {
+                      "path":  "libs/model-viewer.min.js",
+                      "bytes":  931830,
+                      "sha256":  "535e892ad3668ae7a80f86d24c2b20e25b2625f2f52b79a04320e956f6af5475"
+                  },
+                  {
+                      "path":  "libs/fontawesome/css/all.min.css",
+                      "bytes":  102025,
+                      "sha256":  "1edb1725a9ea8ca4dcf2f5508cee183218aa1685e47c1b23056717f754f58ebf"
+                  },
+                  {
+                      "path":  "libs/fontawesome/webfonts/fa-brands-400.ttf",
+                      "bytes":  187208,
+                      "sha256":  "20c4a58bc9d1d69e935d06f1528923646a715be5e218665655cade8f5f1b8c00"
+                  },
+                  {
+                      "path":  "libs/fontawesome/webfonts/fa-brands-400.woff2",
+                      "bytes":  108020,
+                      "sha256":  "748332090c4b8e20f95d0ff59f0be20fa9c889359d3b36d4b886d73376054207"
+                  },
+                  {
+                      "path":  "libs/fontawesome/webfonts/fa-regular-400.ttf",
+                      "bytes":  63952,
+                      "sha256":  "528d022dce6725f8a0811fd91d8e6513445c81ef33353a5c3234eab932551abf"
+                  },
+                  {
+                      "path":  "libs/fontawesome/webfonts/fa-regular-400.woff2",
+                      "bytes":  24948,
+                      "sha256":  "8e7e5ea1b15f62ab14dbd41768e8fbcd21cc859a4ea5da812457ee714299fb35"
+                  },
+                  {
+                      "path":  "libs/fontawesome/webfonts/fa-solid-900.ttf",
+                      "bytes":  394628,
+                      "sha256":  "67a65763c7f80903d81603bbeb9049fc2bf28508479b83ed011fe24c71fa950a"
+                  },
+                  {
+                      "path":  "libs/fontawesome/webfonts/fa-solid-900.woff2",
+                      "bytes":  150124,
+                      "sha256":  "7152a6933ee3d690ec2af3d09da9d701723d16aa3410a6d80f28ff8866f3b880"
+                  }
+              ]
+}

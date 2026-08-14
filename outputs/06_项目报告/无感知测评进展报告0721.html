@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>无感知测评心理健康对话评估智能体 - 阶段性进展报告</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 12mm 14mm;
+    }
+
+    :root {
+      --ink: #1a1a1a;
+      --muted: #555;
+      --light: #777;
+      --border: #cfd6df;
+      --accent: #2b5797;
+      --accent-light: #e8eef6;
+      --accent-soft: #f4f7fb;
+      --danger: #b33a2f;
+      --danger-light: #fbeae8;
+      --success: #2d7250;
+      --success-light: #eaf4ef;
+      --warning: #8a641f;
+      --warning-light: #fbf4e4;
+      --bg: #fff;
+      --gray-bg: #f7f7f7;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      font-size: 14.5px;
+    }
+
+    body {
+      font-family: "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", sans-serif;
+      color: var(--ink);
+      line-height: 1.68;
+      background: #e0e0e0;
+    }
+
+    .page {
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto 12px;
+      padding: 18mm 20mm;
+      background: var(--bg);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+      position: relative;
+    }
+
+    .page-number {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 8mm;
+      text-align: center;
+      color: var(--light);
+      font-size: 0.72rem;
+    }
+
+    .page-title {
+      font-size: 1.45rem;
+      font-weight: 700;
+      color: var(--ink);
+      text-align: center;
+      margin-top: 0.2rem;
+      margin-bottom: 0.25rem;
+      line-height: 1.35;
+    }
+
+    .page-subtitle {
+      font-size: 0.95rem;
+      color: var(--accent);
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .page-meta {
+      font-size: 0.78rem;
+      color: var(--light);
+      text-align: center;
+      margin-bottom: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.08rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin: 1rem 0 0.45rem;
+      padding-bottom: 0.2rem;
+      border-bottom: 1.5px solid var(--accent);
+    }
+
+    h3 {
+      font-size: 0.94rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 0.72rem 0 0.3rem;
+    }
+
+    h4 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin: 0.55rem 0 0.2rem;
+    }
+
+    p {
+      margin-bottom: 0.45rem;
+      text-align: justify;
+      font-size: 0.86rem;
+    }
+
+    ul,
+    ol {
+      margin: 0.2rem 0 0.45rem 1.25rem;
+    }
+
+    li {
+      margin-bottom: 0.16rem;
+      font-size: 0.84rem;
+    }
+
+    strong {
+      color: var(--accent);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+      margin: 0.4rem 0 0.55rem;
+    }
+
+    th {
+      background: var(--accent);
+      color: #fff;
+      padding: 0.35rem 0.42rem;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 0.32rem 0.42rem;
+      border-bottom: 1px solid #e0e0e0;
+      vertical-align: top;
+    }
+
+    tr:nth-child(even) td {
+      background: var(--gray-bg);
+    }
+
+    .callout {
+      background: var(--accent-light);
+      border-left: 3px solid var(--accent);
+      padding: 0.48rem 0.72rem;
+      margin: 0.45rem 0;
+      font-size: 0.82rem;
+    }
+
+    .callout.warning {
+      background: var(--warning-light);
+      border-left-color: var(--warning);
+    }
+
+    .callout.danger {
+      background: var(--danger-light);
+      border-left-color: var(--danger);
+    }
+
+    .callout.success {
+      background: var(--success-light);
+      border-left-color: var(--success);
+    }
+
+    .scope-grid,
+    .module-grid,
+    .principle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.45rem;
+      margin: 0.45rem 0;
+    }
+
+    .scope-card,
+    .module-card,
+    .principle-card {
+      background: var(--gray-bg);
+      border: 1px solid #e2e6eb;
+      border-radius: 4px;
+      padding: 0.42rem 0.55rem;
+      font-size: 0.79rem;
+    }
+
+    .card-title {
+      font-weight: 700;
+      color: var(--accent);
+      font-size: 0.82rem;
+      margin-bottom: 0.12rem;
+    }
+
+    .module-card .module-id {
+      display: inline-block;
+      min-width: 2rem;
+      margin-right: 0.2rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .flowchart {
+      margin: 0.5rem 0;
+    }
+
+    .fc-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.15rem;
+    }
+
+    .fc-node {
+      display: inline-block;
+      padding: 0.28rem 0.72rem;
+      border-radius: 4px;
+      font-size: 0.76rem;
+      text-align: center;
+      min-width: 138px;
+      font-weight: 500;
+    }
+
+    .fc-node.main {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .fc-node.sub {
+      background: var(--accent-light);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .fc-node.danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .fc-node.warn {
+      background: var(--danger-light);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .fc-node.gray {
+      background: var(--gray-bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .fc-vline {
+      width: 1.5px;
+      height: 9px;
+      background: var(--muted);
+      margin: 0 auto;
+    }
+
+    .fc-branch-label {
+      font-size: 0.7rem;
+      color: var(--danger);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .horizontal-flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.35rem;
+      margin: 0.5rem 0;
+    }
+
+    .step {
+      position: relative;
+      min-height: 58px;
+      padding: 0.4rem 0.35rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: var(--accent-soft);
+      text-align: center;
+      font-size: 0.74rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 0.76rem;
+      margin-bottom: 0.1rem;
+    }
+
+    .step.safety {
+      border-color: var(--danger);
+      background: var(--danger-light);
+    }
+
+    .step.safety strong {
+      color: var(--danger);
+    }
+
+    .step.output {
+      border-color: var(--success);
+      background: var(--success-light);
+    }
+
+    .step.output strong {
+      color: var(--success);
+    }
+
+    .fig-caption {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin: 0.2rem 0 0.48rem;
+    }
+
+    .quote {
+      background: var(--gray-bg);
+      border-left: 3px solid var(--border);
+      padding: 0.42rem 0.68rem;
+      margin: 0.4rem 0;
+      font-size: 0.8rem;
+    }
+
+    .status-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.45rem;
+      margin: 0.26rem 0;
+      font-size: 0.81rem;
+    }
+
+    .status-tag {
+      flex: 0 0 auto;
+      min-width: 58px;
+      padding: 0.08rem 0.3rem;
+      border-radius: 3px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .done {
+      color: var(--success);
+      background: var(--success-light);
+    }
+
+    .draft {
+      color: var(--warning);
+      background: var(--warning-light);
+    }
+
+    .future {
+      color: var(--muted);
+      background: #eceff2;
+    }
+
+    @media print {
+      html {
+        font-size: 12.1px;
+      }
+
+      body {
+        background: #fff;
+        line-height: 1.52;
+      }
+
+      .page {
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 260mm;
+        page-break-after: always;
+      }
+
+      .page:last-child {
+        page-break-after: auto;
+      }
+
+      h2,
+      h3,
+      h4 {
+        page-break-after: avoid;
+      }
+
+      h2 {
+        margin: 0.72rem 0 0.32rem;
+      }
+
+      h3 {
+        margin: 0.5rem 0 0.22rem;
+      }
+
+      h4 {
+        margin: 0.38rem 0 0.16rem;
+      }
+
+      p,
+      ul,
+      ol {
+        margin-bottom: 0.3rem;
+      }
+
+      table {
+        margin: 0.3rem 0 0.4rem;
+      }
+
+      th,
+      td {
+        padding-top: 0.24rem;
+        padding-bottom: 0.24rem;
+      }
+
+      .callout,
+      .scope-grid,
+      .module-grid,
+      .principle-grid,
+      .flowchart,
+      .horizontal-flow {
+        margin-top: 0.3rem;
+        margin-bottom: 0.3rem;
+      }
+
+      .step {
+        min-height: 48px;
+      }
+
+      .fc-node {
+        padding-top: 0.2rem;
+        padding-bottom: 0.2rem;
+      }
+
+      .fc-vline {
+        height: 7px;
+      }
+
+      .page-number {
+        bottom: 1mm;
+      }
+
+      table,
+      .callout,
+      .scope-card,
+      .module-card,
+      .principle-card,
+      .step {
+        break-inside: avoid;
+      }
+
+      tr {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- PAGE 1 -->
+  <section class="page">
+    <div class="page-title">无感知测评心理健康对话评估智能体</div>
+    <div class="page-subtitle">阶段性设计进展报告</div>
+    <div class="page-meta">汇报周期：2026 年 7 月 20 日至 7 月 21 日　|　汇报日期：2026 年 7 月 21 日</div>
+
+    <div class="callout success">
+      <strong>本阶段结论：</strong>前期访谈需求已经开始转化为可实施的智能体设计。两日工作聚焦两个层次：周一确定系统定位、边界和总体模块；周二形成核心对话流程及安全中断分支。当前成果为第一版设计框架，尚未进入 Coze
+      实现和真实用户测试。
+    </div>
+
+    <h2>1. 前期研究与本阶段任务</h2>
+    <p>前期共整理 6 份心理咨询师/高校心理工作者访谈和 5 份精神科相关访谈，形成 183
+      条开放编码，并围绕“专业评估需要覆盖什么”和“自然语言系统如何安全承接评估”两个研究问题完成需求提炼。访谈结果表明，系统应重点覆盖主诉、持续时间、情绪与身体状态、功能影响、支持系统和危机风险，同时保持非诊断定位、危机优先和自动报告上传。
+    </p>
+    <p>因此，本阶段不再继续扩展访谈结论，而是选择其中最基础、最优先的需求，先回答两个设计问题：</p>
+    <div class="scope-grid">
+      <div class="scope-card">
+        <div class="card-title">周一：系统是什么</div>
+        明确产品定位、能力边界、核心功能模块及模块之间的关系，形成总体设计草案。
+      </div>
+      <div class="scope-card">
+        <div class="card-title">周二：系统怎么运行</div>
+        把总体框架转化为核心对话步骤，并设计危机线索出现后的中断和自动报告上传位置。
+      </div>
+    </div>
+
+    <h2>2. 周一工作：智能体总体框架</h2>
+
+    <h3>2.1 系统定位与能力边界</h3>
+    <p>
+      智能体采用<strong>对话助手</strong>形式，定位为<strong>“高校心理健康对话评估助手”</strong>。它通过自然语言对话帮助学生梳理近期困扰，采集初步评估信息，识别需要优先关注的风险线索，并形成结构化记录。完整评估报告不直接展示给学生，而是在对话结束后由系统后台静默生成，并自动上传至飞书多维表格。
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50%">系统可以做</th>
+          <th>系统不能做</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>开放式了解用户主诉和求助目标</td>
+          <td>宣称自己是心理咨询师或精神科医生</td>
+        </tr>
+        <tr>
+          <td>补充时间、频率、强度和功能影响</td>
+          <td>输出确定性疾病诊断或排除诊断</td>
+        </tr>
+        <tr>
+          <td>识别风险线索并切换安全流程</td>
+          <td>提供药物调整、治疗承诺或紧急救援承诺</td>
+        </tr>
+        <tr>
+          <td>整理报告草稿并提交自动报告上传</td>
+          <td>把模型输出直接当作最终专业结论</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>2.2 核心模块划分</h3>
+    <p>本阶段先保留六个直接支撑最小闭环的模块，不在汇报中展开完整知识库、量表和后台配置细节。</p>
+    <div class="module-grid">
+      <div class="module-card"><span class="module-id">M1</span><strong>知情说明与边界</strong><br>说明用途、限制、数据使用以及暂停、跳过和退出权利。
+      </div>
+      <div class="module-card"><span class="module-id">M2</span><strong>主诉信息收集</strong><br>先让用户自由表达，再确定本次最需要梳理的问题。</div>
+      <div class="module-card"><span class="module-id">M3</span><strong>动态追问</strong><br>围绕用户原话补足时间、频率、强度、情境和功能影响。</div>
+      <div class="module-card"><span class="module-id">M4</span><strong>安全风险识别</strong><br>对每轮输入持续监测，发现风险后中断普通流程。</div>
+      <div class="module-card"><span class="module-id">M5</span><strong>结构化报告</strong><br>区分用户原话、系统归纳、信息缺口和建议方向。</div>
+      <div class="module-card"><span class="module-id">M6</span><strong>自动报告上传</strong><br>对话结束后静默生成后台报告，并写入飞书多维表格。</div>
+    </div>
+
+    <h3>2.3 简化总体架构</h3>
+    <div class="flowchart">
+      <div class="fc-row">
+        <div class="fc-node main">学生对话入口</div>
+      </div>
+      <div class="fc-vline"></div>
+      <div class="fc-row">
+        <div class="fc-node sub">知情说明与会话状态</div>
+      </div>
+      <div class="fc-vline"></div>
+      <div class="fc-row">
+        <div class="fc-node sub">主诉理解与动态追问</div>
+      </div>
+      <div class="fc-vline"></div>
+      <div class="fc-row">
+        <div class="fc-node danger">全程安全监测与危机中断</div>
+      </div>
+      <div class="fc-vline"></div>
+      <div class="fc-row">
+        <div class="fc-node sub">结构化信息与报告草稿</div>
+      </div>
+      <div class="fc-vline"></div>
+      <div class="fc-row">
+        <div class="fc-node gray">后台自动上传</div>
+      </div>
+    </div>
+    <div class="fig-caption">图 1　智能体总体架构（第一版草案）</div>
+    <div class="page-number">1 / 4</div>
+  </section>
+
+  <!-- PAGE 2 -->
+  <section class="page">
+    <h2>3. 周二工作：核心对话流程</h2>
+    <p>周二工作是在总体框架上确定一条能够支持后续原型实现的主流程。流程采用<strong>“主诉驱动 + 必要字段补全”</strong>，不要求用户从头到尾填写完整问卷，也不以一次对话问完所有字段为目标。</p>
+
+    <h3>3.1 正常对话主流程</h3>
+    <div class="horizontal-flow">
+      <div class="step"><strong>① 边界说明</strong>说明用途、限制和用户控制权</div>
+      <div class="step"><strong>② 开放式主诉</strong>从用户最想表达的困扰开始</div>
+      <div class="step"><strong>③ 具体化追问</strong>补足时间、频率、强度和情境</div>
+      <div class="step"><strong>④ 状态与影响</strong>了解情绪、睡眠及学习生活影响</div>
+      <div class="step safety"><strong>⑤ 安全确认</strong>固定确认自伤、自杀或伤人线索</div>
+      <div class="step"><strong>⑥ 总结确认</strong>复述重点并允许用户更正</div>
+      <div class="step output"><strong>⑦ 初步反馈</strong>提供非诊断性建议和求助方向</div>
+      <div class="step output"><strong>⑧ 报告草稿</strong>生成结构化记录并进入自动报告上传</div>
+    </div>
+    <div class="fig-caption">图 2　核心对话流程。安全监测同时覆盖全部阶段，而非只在第⑤步运行。</div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%">阶段</th>
+          <th style="width:36%">主要任务</th>
+          <th>完成条件</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>边界说明</td>
+          <td>说明系统是初步评估和信息整理工具，用户可跳过、暂停、退出和更正</td>
+          <td>用户理解并同意继续</td>
+        </tr>
+        <tr>
+          <td>开放式主诉</td>
+          <td>了解用户当前最困扰的事情和本次求助目标</td>
+          <td>形成至少一个主要议题</td>
+        </tr>
+        <tr>
+          <td>具体化追问</td>
+          <td>围绕主诉补充发生情境、持续时间、频率、强度和近期变化</td>
+          <td>主诉具备基本时间和影响信息</td>
+        </tr>
+        <tr>
+          <td>状态与影响</td>
+          <td>按相关性了解情绪、认知、行为、睡眠饮食及学习生活影响</td>
+          <td>至少确认一个主要功能领域</td>
+        </tr>
+        <tr>
+          <td>安全确认</td>
+          <td>即使前文没有主动披露，也以中性问题确认当前安全</td>
+          <td>得到明确回答或转入安全分支</td>
+        </tr>
+        <tr>
+          <td>总结与反馈</td>
+          <td>中性复述已确认事实，说明信息缺口，邀请用户修正</td>
+          <td>用户确认或选择不再补充</td>
+        </tr>
+        <tr>
+          <td>报告与复核</td>
+          <td>将已确认、未知、拒答和冲突字段分别记录，生成草稿</td>
+          <td>完成自动校验并进入对应上传记录</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3.2 每轮对话的控制原则</h3>
+    <div class="principle-grid">
+      <div class="principle-card">
+        <div class="card-title">先检查安全</div>每轮输入先识别即时危险和风险线索，再处理普通评估内容。
+      </div>
+      <div class="principle-card">
+        <div class="card-title">一次一个重点</div>常规情况下每轮只问一个主要问题，减少用户负担和问卷感。
+      </div>
+      <div class="principle-card">
+        <div class="card-title">不重复已知信息</div>记录已确认、未知、拒答和冲突状态，避免反复询问。
+      </div>
+      <div class="principle-card">
+        <div class="card-title">不把模糊回答当结论</div>“还行”“没事”“一般”需要结合上下文澄清，不能自动记为正常。
+      </div>
+    </div>
+
+    <h3>3.3 从自然表达转为结构化信息</h3>
+    <p>系统需要在不打断表达的情况下，把用户回答转换为后续报告可用的字段。每个字段至少记录<strong>内容、状态、来源和证据位置</strong>；未询问、用户拒答和用户明确否认必须分别处理。</p>
+    <table>
+      <thead>
+        <tr>
+          <th>用户表达</th>
+          <th>结构化记录</th>
+          <th>下一步</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>“最近一个月总是两三点才睡。”</td>
+          <td>睡眠变化：入睡困难；持续约一个月；来源为用户明确陈述</td>
+          <td>追问出现频率及白天影响</td>
+        </tr>
+        <tr>
+          <td>“还行吧，不太想说。”</td>
+          <td>当前程度未确认；用户暂不愿展开</td>
+          <td>尊重跳过，不记录为“没有影响”</td>
+        </tr>
+        <tr>
+          <td>“以前有过这种想法，现在没有。”</td>
+          <td>既往风险与当前风险分别记录</td>
+          <td>简短确认当前安全与可用支持</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3.4 对话示例</h3>
+    <div class="quote">
+      <strong>用户：</strong>最近论文和找工作一起压过来，晚上总睡不着。<br>
+      <strong>智能体：</strong>论文和求职同时推进，确实容易让人一直绷着。你提到晚上睡不着，这种情况大概持续多久了？<br>
+      <strong>设计说明：</strong>先承接用户已表达的压力，再追问一个关键维度；不在第二轮直接判断“焦虑”，也不立即投放完整量表。
+    </div>
+    <div class="page-number">2 / 4</div>
+  </section>
+
+  <!-- PAGE 3 -->
+  <section class="page">
+    <h2>4. 安全中断与自动报告上传</h2>
+    <p>访谈和 Miro 整理均表明，危机风险不能只在对话末尾检查。因此，本阶段在正常流程之外增加一条全局安全通道：任意阶段出现自伤、自杀、伤人、已经发生的身体伤害或严重精神状态线索时，系统立即暂停普通追问、量表和自助建议。</p>
+
+    <h3>4.1 安全分支流程</h3>
+    <div class="flowchart">
+      <div class="fc-branch-label">任意阶段发现明确或含蓄的风险线索</div>
+      <div class="fc-vline" style="background:var(--danger)"></div>
+      <div class="fc-row">
+        <div class="fc-node danger">中断普通评估</div>
+      </div>
+      <div class="fc-vline" style="background:var(--danger)"></div>
+      <div class="fc-row">
+        <div class="fc-node warn">确认是否正在发生、是否能够保持当前安全</div>
+      </div>
+      <div class="fc-vline" style="background:var(--danger)"></div>
+      <div class="fc-row">
+        <div class="fc-node warn">确认现实支持是否可用、是否需要紧急医疗帮助</div>
+      </div>
+      <div class="fc-vline" style="background:var(--danger)"></div>
+      <div class="fc-row">
+        <div class="fc-node sub">调用经审核的校内或属地资源</div>
+      </div>
+      <div class="fc-vline"></div>
+      <div class="fc-row">
+        <div class="fc-node gray">记录依据并提交自动报告上传或交接</div>
+      </div>
+    </div>
+    <div class="fig-caption">图 3　危机线索触发后的安全中断分支（初步设计）</div>
+
+    <h3>4.2 初步分流方向</h3>
+    <p>当前只确定工作流方向，不把系统标签当作临床风险等级，也不让模型单独作出最终处置决定。</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">流程状态</th>
+          <th style="width:38%">适用情况</th>
+          <th>后续动作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>继续评估</td>
+          <td>本次对话当前未披露明确即时风险，回答较一致</td>
+          <td>继续主诉与功能影响评估，同时保留不确定性</td>
+        </tr>
+        <tr>
+          <td>需要关注</td>
+          <td>存在消极想法、明显功能下降、既往风险或支持不足</td>
+          <td>补充必要信息，建议尽快联系专业支持，进入自动报告上传</td>
+        </tr>
+        <tr>
+          <td>高度关注</td>
+          <td>存在主动风险意念、计划或工具可及，或无法稳定确认安全</td>
+          <td>停止普通流程，立即连接现实支持和专业资源</td>
+        </tr>
+        <tr>
+          <td>紧急处理</td>
+          <td>行为正在发生、已经受伤/疑似过量服药，或计划迫近</td>
+          <td>建议立即联系当地紧急服务、医疗机构和现场可信任人员</td>
+        </tr>
+        <tr>
+          <td>信息不足</td>
+          <td>风险表达后拒答、退出、输入冲突或技术中断</td>
+          <td>不得记录为“无风险”，按保守原则提示资源并自动报告上传</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.3 安全规则的实现原则</h3>
+    <div class="principle-grid">
+      <div class="principle-card">
+        <div class="card-title">多通道识别</div>关键词模式、语义理解、量表风险条目和会话历史共同提供线索，避免只看单个词语。
+      </div>
+      <div class="principle-card">
+        <div class="card-title">只问必要信息</div>确认当前行为、想法、时间、现实支持和能否保持安全，不追问无助于分流的伤害操作细节。
+      </div>
+      <div class="principle-card">
+        <div class="card-title">资源必须受控</div>热线、医院和校内联系人只能来自项目组审核并定期维护的白名单，系统不得临时编造。
+      </div>
+      <div class="principle-card">
+        <div class="card-title">模型不能自动解除风险</div>用户改口、拒答或信息冲突时保留原始记录，必要时继续自动报告上传。
+      </div>
+    </div>
+
+    <h3>4.4 报告与自动报告上传</h3>
+    <p>对话结束后，系统不向学生展示完整报告，而是在后台静默生成<strong>结构化报告</strong>。报告需要区分用户原话、系统归纳、尚未确认的信息和安全关注状态，并通过工作流自动上传至飞书多维表格。以下情况必须在后台报告中保留对应标记：</p>
+    <ul>
+      <li>出现任何自伤、自杀、伤人或严重精神状态线索；</li>
+      <li>用户拒绝关键安全问题、回答存在冲突或中途退出；</li>
+      <li>系统向学生提示学校心理健康中心联系方式等资源；</li>
+      <li>量表结果与用户叙述明显不一致；</li>
+      <li>报告中存在信息不足、未确认或需要后续项目组确认的字段。</li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:25%">环节</th>
+          <th>系统职责</th>
+          <th>边界控制</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>信息整理</td>
+          <td>提取字段、标明来源和缺口</td>
+          <td>未知、拒答和冲突信息不得被写成否定结论</td>
+        </tr>
+        <tr>
+          <td>风险提示</td>
+          <td>根据规则触发安全流程并记录依据</td>
+          <td>不写“无风险”，只记录安全关注状态和资源提示</td>
+        </tr>
+        <tr>
+          <td>报告生成</td>
+          <td>生成非诊断性的后台结构化报告并自动上传飞书</td>
+          <td>不向学生展示完整报告，不声称完成专业评估</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout danger">
+      <strong>当前边界：</strong>学校心理健康中心联系方式、资源白名单、服务时间和学生端展示文案尚未确认。因此，这部分目前只能用于设计评审和模拟案例测试，不能表述为已经建立真实危机干预能力或主动告警能力。
+    </div>
+    <div class="page-number">3 / 4</div>
+  </section>
+
+  <!-- PAGE 4 -->
+  <section class="page">
+    <h2>5. 两日阶段成果</h2>
+    <p><strong>“完成第一版框架并形成可评审材料”</strong>，并非完成全部智能体设计或系统开发。</p>
+
+    <div class="status-line"><span
+        class="status-tag done">已形成</span><span><strong>总体设计草案：</strong>明确系统定位、能力边界、六个核心模块及其关系。</span></div>
+    <div class="status-line"><span
+        class="status-tag done">已形成</span><span><strong>核心对话流程：</strong>明确从知情说明、开放式主诉到总结反馈和报告草稿的主要步骤。</span></div>
+    <div class="status-line"><span
+        class="status-tag done">已形成</span><span><strong>安全中断分支：</strong>明确风险优先、停止普通流程、连接现实支持和自动报告上传的基本逻辑。</span></div>
+    <div class="status-line"><span
+        class="status-tag draft">待细化</span><span><strong>提示词与报告字段：</strong>已有设计方向，仍需结合组内意见压缩为可在 Coze 中实现的版本。</span>
+    </div>
+    <div class="status-line"><span
+        class="status-tag draft">待细化</span><span><strong>方案流程具体细节：</strong>已有一个大体的框架，在细节上还需要完善</span></div>
+    <div class="status-line"><span class="status-tag future">未实施</span><span><strong>平台与测试：</strong>尚未在 Coze
+        中搭建工作流，也未开展模拟案例或真实用户测试。</span></div>
+
+    <h2>6. 当前方案的核心特点</h2>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:25%">设计特点</th>
+          <th>具体体现</th>
+          <th style="width:30%">对应访谈需求</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>主诉驱动</td>
+          <td>先让用户自由表达，再补齐必要字段</td>
+          <td>减少固定选项诱导和问卷感</td>
+        </tr>
+        <tr>
+          <td>动态追问</td>
+          <td>围绕时间、频率、强度、情境和功能影响逐步澄清</td>
+          <td>避免仅凭情绪关键词下结论</td>
+        </tr>
+        <tr>
+          <td>风险优先</td>
+          <td>每轮安全监测，出现风险后中断普通流程</td>
+          <td>回应危机识别与转介闭环要求</td>
+        </tr>
+        <tr>
+          <td>证据可追溯</td>
+          <td>字段记录来源、状态和证据位置</td>
+          <td>支持后台留痕、字段检查和后续项目迭代</td>
+        </tr>
+        <tr>
+          <td>人机协作</td>
+          <td>AI 生成后台报告，工作流完成飞书自动上传</td>
+          <td>保持系统边界并降低误导风险</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>7. 下一步工作</h2>
+    <ol>
+      <li><strong>完成组内评审：</strong>确认量表使用范围、安全责任链、数据权限和原型测试边界。</li>
+      <li><strong>细化关键规则：</strong>在当前流程上完善各阶段提示词、字段状态和报告结构。</li>
+      <li><strong>确认安全条件：</strong>确认学校心理健康中心联系方式、资源白名单、学生端提示文案和服务时间。</li>
+      <li><strong>实现最小原型：</strong>优先打通边界说明、主诉收集、动态追问、安全确认、总结和结构化输出。</li>
+      <li><strong>开展模拟测试：</strong>使用专家编写的标准化案例验证风险漏报、重复提问、诊断性措辞和报告一致性。</li>
+    </ol>
+
+    <h2>8. 需要组内确认的问题</h2>
+    <p>智能体采用对话助手形式、完整评估报告仅提供给后台老师，这两项已经明确。后续仍需组内确认以下问题：</p>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:7%">序号</th>
+          <th>待确认问题</th>
+          <th style="width:31%">对后续工作的影响</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1</td>
+          <td>原型阶段允许使用哪些量表，题目、计分和结果解释由谁审核？</td>
+          <td>影响量表路由和对话流程</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>学校心理健康中心联系方式由谁维护，出现需关注线索时学生端展示哪些资源提示？</td>
+          <td>决定安全分支能否进入真实测试</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>对话记录、后台报告和身份信息如何分开保存，哪些角色可以访问？</td>
+          <td>影响 Coze、飞书和自研平台的数据设计</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>汇报结论：</strong>两日工作已经完成从“访谈需求”到“总体框架和核心流程”的第一步转化。下一阶段重点不是继续增加文档数量，而是通过组内和专业评审确定边界，再将关键流程压缩为可实现、可测试的 Coze
+      最小原型。
+    </div>
+
+    <p style="margin-top:1.1rem;text-align:center;color:var(--light);font-size:0.78rem;">— 报告结束 —</p>
+    <div class="page-number">4 / 4</div>
+  </section>
+
+</body>
+
+</html>

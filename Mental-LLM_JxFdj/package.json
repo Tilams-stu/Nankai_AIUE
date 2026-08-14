@@ -1,0 +1,27 @@
+{
+  "name": "mental-llm-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "runtime:build": "tsc -p tsconfig.runtime.json",
+    "build": "npm run runtime:build && vite build",
+    "typecheck": "tsc --noEmit",
+    "lint": "npm run typecheck",
+    "test": "npm run runtime:build && node --test __tests__/mental-prototype.test.js",
+    "check": "npm run typecheck",
+    "smoke": "npm run runtime:build && powershell -ExecutionPolicy Bypass -File scripts/smoke_check.ps1",
+    "validate:local": "powershell -ExecutionPolicy Bypass -File scripts/check_all_local_validations.ps1",
+    "validate:error:model-permission": "powershell -ExecutionPolicy Bypass -File scripts/check_upstream_model_permission_error.ps1",
+    "validate:live:preflight": "powershell -ExecutionPolicy Bypass -File scripts/check_live_integration_prerequisites.ps1",
+    "validate:live:chat": "powershell -ExecutionPolicy Bypass -File scripts/check_live_nankai_chat.ps1",
+    "validate:live:scenario": "powershell -ExecutionPolicy Bypass -File scripts/check_live_scenario.ps1",
+    "validate:live:workflow": "powershell -ExecutionPolicy Bypass -File scripts/check_live_workflow_forward.ps1",
+    "validate:live": "powershell -ExecutionPolicy Bypass -File scripts/check_all_live_integrations.ps1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0"
+  }
+}

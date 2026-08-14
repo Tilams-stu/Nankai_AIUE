@@ -1,0 +1,49 @@
+:root {
+            /* --- 风格定义：清新、自然、疗愈 --- */
+            --bg-base: #f7f9fc;
+            --primary: #4ECDC4;      /* 薄荷绿 */
+            --accent: #FF6B6B;       /* 暖红 */
+            --text-main: #2D3436;
+            --text-light: #636E72;
+            --radius-lg: 32px;
+            --shadow-soft: 0 10px 40px rgba(0,0,0,0.03);
+            --glass: rgba(255,255,255,0.75);
+            --card-bg: #fff;
+            --input-bg: #f1f2f6;
+            --sidebar-bg: #fff;
+            --agent-bubble-bg: #fff;
+            --user-bubble-bg: #4ECDC4;
+            --user-bubble-text: #fff;
+        }
+
+        /* 暗黑模式变量覆盖 */
+        body.dark-mode {
+            --bg-base: #1a1a2e;
+            --text-main: #e0e0e0;
+            --text-light: #a0a0a0;
+            --glass: rgba(30, 30, 46, 0.85);
+            --card-bg: #252538;
+            --input-bg: #2a2a3e;
+            --sidebar-bg: #16213e;
+            --shadow-soft: 0 10px 40px rgba(0,0,0,0.3);
+            --agent-bubble-bg: #32324a;
+            --user-bubble-bg: #4ECDC4; /* 保持鲜艳或稍微调暗 */
+            --user-bubble-text: #1a1a2e; /* 深色文字增加对比 */
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+            height: 100vh; width: 100vw;
+            overflow: hidden;
+            background: var(--bg-base);
+            /* 柔和背景纹理 */
+            background-image: 
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.3) 0px, transparent 50%);
+            display: flex;
+            align-items: center; justify-content: center;
+        }
+

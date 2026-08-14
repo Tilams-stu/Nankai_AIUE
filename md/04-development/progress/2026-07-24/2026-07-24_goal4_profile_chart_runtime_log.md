@@ -1,0 +1,5 @@
+### [2026-07-24] Goal 4 Profile Chart Runtime Development Log
+
+- **任务概述**：继续推进 Mental-LLM 代码开发计划的 Goal 4，在 CSS 分层、白噪音运行时、模型心情切换运行时、导航运行时和冥想运行时外置之后，抽取第五个低耦合交互切片：状态页图表。将雷达图配置、折线图配置、Chart.js 实例状态、销毁和暗色模式后的刷新迁移到 `src/app/profileChartRuntime.js`，`index.html` 只保留 `initChart` 兼容包装函数。
+- **代码变更稿**：涉及 `Mental-LLM_JxFdj/index.html`、`Mental-LLM_JxFdj/src/app/profileChartRuntime.js`、`Mental-LLM_JxFdj/scripts/smoke_check.ps1`、`Mental-LLM_JxFdj/tests/smoke_check.md`、`Mental-LLM_JxFdj/docs/architecture.md`、`Mental-LLM_JxFdj/docs/refactor_notes.md`、`Mental-LLM_JxFdj/docs/presentation_notes.md`、`Mental-LLM_JxFdj/README.md`、`testing/2026-07-24_goal4_profile_chart_runtime_check.md`。
+- **技术亮点与潜在风险**：图表运行时通过 `window.MentalProfileChartRuntime` 暴露能力，避免 `index.html` 继续持有 `radarChartInstance`、`lineChartInstance` 和完整 Chart.js 配置。`switchView('profile')` 仍调用 `initChart` 包装函数；暗色模式切换后调用 `refresh()` 销毁并重建已有图表。`python -m compileall proxy_server.py server test_api.py`、`npm run typecheck`、`npm run build`、`npm run smoke` 均通过；最小 DOM 验证确认初始化、重复初始化保护、刷新销毁重建和状态查询均可工作。后续 Goal 4 仍需继续拆设置弹窗、输入框自适应、语音输入、消息渲染、聊天服务和 3D 模型上色逻辑。
